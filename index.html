@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Portail officiel de la Démocratie de Kerdoré, micronation démocratique souveraine. Découvrez le gouvernement, la constitution, l'histoire et les actualités de cette micronation."/>
+  <meta name="robots" content="index, follow"/>
+  <meta name="keywords" content="Kerdoré, micronation, démocratie, micronation française, nation virtuelle, état indépendant, micronation démocratique"/>
+  <meta name="google-site-verification" content="WtqGY8QnFWzd_Vzti7Qw2Xyzb7o3zIhlzVjXPQH_Snw" />
+  <link rel="canonical" href="https://info-kerdore.netlify.app/"/>
+  <!-- Open Graph -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Démocratie de Kerdoré — Micronation Démocratique | Portail Officiel"/>
+  <meta property="og:description" content="Portail officiel de la Démocratie de Kerdoré, micronation démocratique souveraine. Découvrez le gouvernement, la constitution, l'histoire et les actualités de cette micronation."/>
+  <meta property="og:url" content="https://info-kerdore.netlify.app/"/>
+  <meta property="og:image" content="https://info-kerdore.netlify.app/assets/drapeau_officiel.png"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Démocratie de Kerdoré — Micronation Démocratique | Portail Officiel"/>
+  <meta name="twitter:description" content="Portail officiel de la Démocratie de Kerdoré, micronation démocratique souveraine. Découvrez le gouvernement, la constitution, l'histoire et les actualités de cette micronation."/>
+  <title>Démocratie de Kerdoré — Micronation Démocratique | Portail Officiel</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <!-- Données structurées JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Démocratie de Kerdoré",
+    "description": "Kerdoré est une micronation démocratique souveraine. Portail officiel de la Démocratie de Kerdoré, micronation fondée sur des valeurs de liberté, de justice et de citoyenneté participative.",
+    "url": "https://info-kerdore.netlify.app/",
+    "logo": "https://info-kerdore.netlify.app/assets/drapeau_officiel.png",
+    "keywords": "micronation, démocratie, Kerdoré, micronation française"
+  }
+  </script>
+</head>
+<body>
+<!-- PAGE LOADER -->
+<div class="page-loader" id="page-loader">
+  <div class="loader-flag">
+    <img src="assets/drapeau.png" alt="Kerdoré"/>
+  </div>
+  <div class="loader-dots"><span></span><span></span><span></span></div>
+  <p class="loader-label">Chargement en cours</p>
+</div>
+
+<!-- NAVIGATION -->
+<nav class="navbar" id="main-nav"></nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left fade-up">
+    <p class="hero-eyebrow">Portail Officiel de l'État</p>
+    <h1 class="hero-title" id="home-title" data-dynamic>Démocratie de Kerdoré</h1>
+    <p class="hero-tagline" id="home-subtitle" data-dynamic></p>
+    <span class="hero-motto" id="home-motto" data-dynamic></span>
+  </div>
+  <div class="hero-right fade-up delay-2">
+    <div class="hero-flag-wrap">
+      <img src="assets/drapeau_officiel.png" alt="Drapeau de Kerdoré" class="hero-flag"/>
+      <span class="hero-flag-label">Drapeau officiel de la Démocratie</span>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-inner" id="ticker-content" data-dynamic></div>
+</div>
+
+<!-- STATISTIQUES -->
+<div class="stats-band">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <span class="stat-icon">👥</span>
+      <span class="stat-value" id="stat-habitants">—</span>
+      <span class="stat-label">Habitants</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-icon">💰</span>
+      <span class="stat-value" id="stat-pib">—</span>
+      <span class="stat-label">PIB</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-icon">🗺️</span>
+      <span class="stat-value" id="stat-superficie">—</span>
+      <span class="stat-label">Superficie</span>
+    </div>
+  </div>
+</div>
+
+<!-- PRÉSENTATION -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-bar"></div>
+    <div>
+      <h2 class="section-title">La Démocratie de Kerdoré</h2>
+      <p class="section-sub">Notre nation, nos valeurs, notre avenir</p>
+    </div>
+  </div>
+  <p id="home-description" data-dynamic style="max-width:700px; font-size:1.05rem; line-height:1.85; color:#2a2520;"></p>
+</div>
+
+<!-- QUICK LINKS -->
+<div style="max-width:1200px; margin: 0 auto; padding: 0 2rem 5rem;">
+  <div class="quick-grid">
+    <a href="gouvernement.html" class="quick-card">
+      <span class="quick-card-icon">🏛️</span>
+      <span class="quick-card-title">Gouvernement</span>
+      <p class="quick-card-desc">Découvrez les institutions, le chef de l'État et les ministres de la Démocratie.</p>
+      <span class="quick-arrow">→</span>
+    </a>
+    <a href="histoire.html" class="quick-card">
+      <span class="quick-card-icon">📜</span>
+      <span class="quick-card-title">Histoire</span>
+      <p class="quick-card-desc">Les origines et les grandes étapes de la fondation de Kerdoré.</p>
+      <span class="quick-arrow">→</span>
+    </a>
+    <a href="constitution.html" class="quick-card">
+      <span class="quick-card-icon">⚖️</span>
+      <span class="quick-card-title">Constitution</span>
+      <p class="quick-card-desc">La loi fondamentale de la Démocratie, droits et devoirs des citoyens.</p>
+      <span class="quick-arrow">→</span>
+    </a>
+    <a href="diplomatie.html" class="quick-card">
+      <span class="quick-card-icon">🌍</span>
+      <span class="quick-card-title">Diplomatie</span>
+      <p class="quick-card-desc">Relations extérieures, alliances et traités de la Démocratie.</p>
+      <span class="quick-arrow">→</span>
+    </a>
+    <a href="actualites.html" class="quick-card">
+      <span class="quick-card-icon">📰</span>
+      <span class="quick-card-title">Actualités</span>
+      <p class="quick-card-desc">Communiqués officiels, décrets et dernières nouvelles de l'État.</p>
+      <span class="quick-arrow">→</span>
+    </a>
+    <a href="citoyennete.html" class="quick-card">
+      <span class="quick-card-icon">👥</span>
+      <span class="quick-card-title">Citoyenneté</span>
+      <p class="quick-card-desc">Conditions et procédure pour rejoindre la communauté nationale kerdoreine.</p>
+      <span class="quick-arrow">→</span>
+    </a>
+  </div>
+</div>
+
+<!-- DERNIÈRES ACTUALITÉS -->
+<div style="background: var(--off-white); padding: 5rem 2rem;">
+  <div class="section" style="padding-top: 0; padding-bottom: 0;">
+    <div class="section-header">
+      <div class="section-bar"></div>
+      <div>
+        <h2 class="section-title">Dernières Actualités</h2>
+        <p class="section-sub">Communiqués et décrets officiels</p>
+      </div>
+    </div>
+    <div class="news-grid" id="news-grid">
+      <!-- Chargé dynamiquement -->
+      <div class="news-card">
+        
+      </div>
+    </div>
+    <div style="margin-top:2.5rem;">
+      <a href="actualites.html" class="btn btn-red">Toutes les actualités →</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">KERDORÉ</div>
+        <p class="footer-desc">Portail officiel de la Démocratie de Kerdoré. Toutes les informations présentées sur ce site ont valeur officielle.</p>
+      </div>
+      <div>
+        <p class="footer-head">Institutions</p>
+        <ul class="footer-links">
+          <li><a href="gouvernement.html">Gouvernement</a></li>
+          <li><a href="constitution.html">Constitution</a></li>
+          <li><a href="diplomatie.html">Diplomatie</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-head">Citoyens</p>
+        <ul class="footer-links">
+          <li><a href="citoyennete.html">Citoyenneté</a></li>
+          <li><a href="actualites.html">Actualités</a></li>
+          <li><a href="histoire.html">Histoire</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-head">Administration</p>
+        <ul class="footer-links">
+          <li><a href="admin/login.html">Espace Admin</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span id="footer-name" data-dynamic></span> — Tous droits réservés
+    </div>
+  </div>
+</footer>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/content.js"></script>
+<script>
+  injectNav('accueil');
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Stats
+    const stats = await loadContent('stats');
+    setText('stat-habitants',  stats.habitants != null ? Number(stats.habitants).toLocaleString('fr-FR') : '0');
+    setText('stat-pib',        stats.pib        || '0');
+    setText('stat-superficie', stats.superficie  || '0');
+
+    // Accueil
+    const home = await loadContent('home');
+    setText('home-title',       home.title);
+    setText('home-subtitle',    home.subtitle);
+    setText('home-motto',       home.motto);
+    setText('home-description', home.description);
+    setText('footer-name',      home.title);
+
+    // Ticker
+    if (home.ticker) {
+      const inner = document.getElementById('ticker-content');
+      const items = home.ticker.split('·').map(t => t.trim()).filter(Boolean);
+      const doubled = [...items, ...items];
+      inner.innerHTML = doubled.map(t => `<span class="ticker-item">${t}</span>`).join('');
+      inner.classList.add('loaded');
+    }
+
+    // Actualités (3 dernières)
+    const actu = await loadContent('actualites');
+    const grid = document.getElementById('news-grid');
+    const articles = actu.articles || [];
+    if (articles.length === 0) {
+      grid.innerHTML = '<p style="color:var(--gray);">Aucune actualité pour le moment.</p>';
+    } else {
+      grid.classList.add('loaded');
+      grid.innerHTML = articles.slice(0, 3).map(a => `
+        <div class="news-card">
+          ${a.banniere
+            ? `<img class="news-banner" src="${a.banniere}" alt="${a.titre||''}" loading="lazy"/>`
+            : `<div class="news-banner-placeholder">📰</div>`}
+          <div class="news-card-body">
+            <span class="news-cat">Communiqué</span>
+            <p class="news-date">${a.date || ''}</p>
+            <h3 class="news-title">${a.titre || ''}</h3>
+            <p class="news-excerpt">${(a.contenu || '').slice(0, 150)}…</p>
+            <a href="actualites.html" class="news-link">Lire la suite</a>
+            <p class="news-author">Par ${a.auteur || 'Chancellerie'}</p>
+          </div>
+        </div>`).join('');
+    }
+  });
+</script>
+<script>
+  // Hide page loader once DOM + Firebase content is ready
+  (function() {
+    function hideLoader() {
+      var l = document.getElementById('page-loader');
+      if (l) l.classList.add('hidden');
+    }
+    // Fallback: hide after 3.5s no matter what
+    var fallback = setTimeout(hideLoader, 3500);
+    document.addEventListener('kerdore:ready', function() {
+      clearTimeout(fallback); hideLoader();
+    });
+    // Also hide on window load
+    window.addEventListener('load', function() {
+      setTimeout(hideLoader, 600);
+    });
+  })();
+</script>
+</body>
+</html>

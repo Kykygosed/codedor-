@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Connexion Admin — Démocratie de Kerdoré</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body style="background: var(--black);">
+
+<div class="login-page">
+  <!-- GAUCHE — Emblème -->
+  <div class="login-left">
+    <div class="login-emblem">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+        <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" stroke-width="2.5"/>
+        <g transform="translate(50,50)">
+          <path d="M0,0 C-2,-8 -3,-18 2,-26 C7,-34 18,-32 18,-20 C18,-10 8,-3 0,0Z"/>
+          <path d="M0,0 C-2,-8 -3,-18 2,-26 C7,-34 18,-32 18,-20 C18,-10 8,-3 0,0Z" transform="rotate(120)"/>
+          <path d="M0,0 C-2,-8 -3,-18 2,-26 C7,-34 18,-32 18,-20 C18,-10 8,-3 0,0Z" transform="rotate(240)"/>
+          <circle cx="0" cy="0" r="5"/>
+        </g>
+      </svg>
+      <p class="login-name">KERDORÉ</p>
+      <p class="login-sub">Espace Administration</p>
+    </div>
+  </div>
+
+  <!-- DROITE — Formulaire -->
+  <div class="login-right">
+    <div class="login-box">
+      <h1 class="login-title">Connexion</h1>
+      <p class="login-desc">Réservé aux administrateurs autorisés de la Démocratie</p>
+
+      <div class="login-error" id="login-error"></div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">Adresse e-mail</label>
+        <input class="form-input" type="email" id="email" placeholder="admin@kerdore.gov" autocomplete="email"/>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Mot de passe</label>
+        <input class="form-input" type="password" id="password" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+
+      <button class="btn btn-gold" id="login-btn" onclick="doLogin()" style="width:100%; margin-top:0.5rem;">
+        Se connecter
+      </button>
+
+      <p style="margin-top:1.5rem; font-size:0.82rem; color:var(--gray); text-align:center;">
+        <a href="../index.html" style="color:var(--gray);">← Retour au portail public</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Spinner -->
+<div class="spinner-overlay" id="spinner">
+  <div class="spinner"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script>
+  // Afficher l'erreur si redirigé depuis le dashboard (accès non autorisé)
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('error') === 'unauthorized') {
+    const errDiv = document.getElementById('login-error');
+    errDiv.textContent = 'Accès refusé : vous n\'avez pas les droits administrateur.';
+    errDiv.classList.add('show');
+  }
+
+  // Rediriger si déjà connecté
+  auth.onAuthStateChanged(user => {
+    if (user) window.location.href = 'dashboard.html';
+  });
+
+  // Connexion au Enter
+  document.getElementById('password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+  document.getElementById('email').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('password').focus();
+  });
+
+  async function doLogin() {
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const errDiv   = document.getElementById('login-error');
+    const spinner  = document.getElementById('spinner');
+
+    errDiv.classList.remove('show');
+    errDiv.textContent = '';
+
+    if (!email || !password) {
+      errDiv.textContent = 'Veuillez renseigner tous les champs.';
+      errDiv.classList.add('show');
+      return;
+    }
+
+    spinner.classList.add('show');
+    document.getElementById('login-btn').disabled = true;
+
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+      window.location.href = 'dashboard.html';
+    } catch (err) {
+      let msg = 'Identifiants incorrects. Veuillez réessayer.';
+      if (err.code === 'auth/user-not-found')   msg = 'Aucun compte associé à cet e-mail.';
+      if (err.code === 'auth/wrong-password')   msg = 'Mot de passe incorrect.';
+      if (err.code === 'auth/too-many-requests') msg = 'Trop de tentatives. Réessayez plus tard.';
+      errDiv.textContent = msg;
+      errDiv.classList.add('show');
+    } finally {
+      spinner.classList.remove('show');
+      document.getElementById('login-btn').disabled = false;
+    }
+  }
+</script>
+<script>
+  // Hide page loader once DOM + Firebase content is ready
+  (function() {
+    function hideLoader() {
+      var l = document.getElementById('page-loader');
+      if (l) l.classList.add('hidden');
+    }
+    // Fallback: hide after 3.5s no matter what
+    var fallback = setTimeout(hideLoader, 3500);
+    document.addEventListener('kerdore:ready', function() {
+      clearTimeout(fallback); hideLoader();
+    });
+    // Also hide on window load
+    window.addEventListener('load', function() {
+      setTimeout(hideLoader, 600);
+    });
+  })();
+</script>
+</body>
+</html>

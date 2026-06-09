@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Découvrez les institutions de la Démocratie de Kerdoré : chef d'État, Conseil des Ministres et Conseil National."/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://info-kerdore.netlify.app/gouvernement.html"/>
+  <!-- Open Graph -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Gouvernement — Démocratie de Kerdoré"/>
+  <meta property="og:description" content="Découvrez les institutions de la Démocratie de Kerdoré : chef d'État, Conseil des Ministres et Conseil National."/>
+  <meta property="og:url" content="https://info-kerdore.netlify.app/gouvernement.html"/>
+  <meta property="og:image" content="https://info-kerdore.netlify.app/assets/drapeau_officiel.png"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Gouvernement — Démocratie de Kerdoré"/>
+  <meta name="twitter:description" content="Découvrez les institutions de la Démocratie de Kerdoré : chef d'État, Conseil des Ministres et Conseil National."/>
+  <title>Gouvernement — Démocratie de Kerdoré</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<!-- PAGE LOADER -->
+<div class="page-loader" id="page-loader">
+  <div class="loader-flag">
+    <img src="assets/drapeau.png" alt="Kerdoré"/>
+  </div>
+  <div class="loader-dots"><span></span><span></span><span></span></div>
+  <p class="loader-label">Chargement en cours</p>
+</div>
+<nav class="navbar" id="main-nav"></nav>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <p class="page-label">Institutions de la Démocratie</p>
+    <h1 class="page-title">Gouvernement</h1>
+    <p class="page-desc">Les organes qui exercent le pouvoir au nom du peuple kerdorein</p>
+  </div>
+</div>
+
+<div class="content-area">
+
+  <h2>Chef de l'État</h2>
+  <div class="minister-card chef-card" id="chef-block" style="display:flex; align-items:center; gap:1.5rem; text-align:left; margin-bottom:3rem; padding:1.8rem;">
+    <div class="minister-av" id="chef-avatar-wrap" style="width:90px; height:90px; flex-shrink:0; font-size:1.8rem;">
+      <span id="chef-avatar-initials">?</span>
+    </div>
+    <div>
+      <p class="minister-role" id="chef-titre" style="margin-bottom:0.25rem;"></p>
+      <p class="minister-name" id="chef-nom" style="font-size:1.15rem; margin-bottom:0.5rem;"></p>
+      <p style="font-size:0.88rem; color:var(--text-light); line-height:1.7; font-style:italic;" id="chef-bio"></p>
+    </div>
+  </div>
+
+  <h2>Conseil des Ministres</h2>
+  <div class="ministers-grid" id="ministers-grid" data-dynamic>
+    
+  </div>
+
+  <div class="ornament">— — —</div>
+
+  <h2>Conseil National</h2>
+  <p id="parlement-desc" data-dynamic data-dynamic></p>
+
+  <div id="groupes-section"></div>
+
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div><div class="footer-logo">KERDORÉ</div><p class="footer-desc">Portail officiel de la Démocratie de Kerdoré.</p></div>
+      <div>
+        <p class="footer-head">Navigation</p>
+        <ul class="footer-links">
+          <li><a href="index.html">Accueil</a></li>
+          <li><a href="constitution.html">Constitution</a></li>
+          <li><a href="diplomatie.html">Diplomatie</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-head">Citoyens</p>
+        <ul class="footer-links">
+          <li><a href="citoyennete.html">Citoyenneté</a></li>
+          <li><a href="actualites.html">Actualités</a></li>
+        </ul>
+      </div>
+      <div><p class="footer-head">Admin</p><ul class="footer-links"><li><a href="admin/login.html">Espace Admin</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">Démocratie de Kerdoré — Tous droits réservés</div>
+  </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/content.js"></script>
+<script>
+  injectNav('gouvernement');
+  document.addEventListener('DOMContentLoaded', async () => {
+    const gov = await loadContent('gouvernement');
+
+    setText('chef-titre', gov.chef_titre);
+    setText('chef-nom',   gov.chef_nom);
+    setText('chef-bio',   gov.chef_bio);
+    setText('parlement-desc', gov.parlement);
+
+    // Photo ou initiales chef d'état
+    const avatarWrap = document.getElementById('chef-avatar-wrap');
+    if (gov.chef_photo) {
+      avatarWrap.innerHTML = `<img src="${gov.chef_photo}" alt="${gov.chef_nom || 'Chef d État'}" style="width:100%;height:100%;object-fit:cover;"/>`;
+    } else {
+      document.getElementById('chef-avatar-initials').textContent = initiales(gov.chef_nom);
+    }
+
+    const ministres = gov.ministres || [];
+    const grid = document.getElementById('ministers-grid');
+    if (ministres.length === 0) {
+      grid.innerHTML = '<p style="color:var(--text-light)">Aucun ministre nommé.</p>';
+    } else {
+      grid.classList.add('loaded');
+      grid.innerHTML = ministres.map(m => {
+        const photoHtml = m.photo
+          ? `<img src="${m.photo}" alt="${m.nom || ''}" style="width:100%;height:100%;object-fit:cover;"/>`
+          : `<span>${initiales(m.nom)}</span>`;
+        return `
+          <div class="minister-card">
+            <div class="minister-av">${photoHtml}</div>
+            <p class="minister-name">${m.nom || ''}</p>
+            <p class="minister-role">${m.portefeuille || ''}</p>
+          </div>`;
+      }).join('');
+    }
+
+    // Groupes personnalisés
+    const groupes = gov.groupes || [];
+    const groupesSection = document.getElementById('groupes-section');
+    if (groupes.length > 0) {
+      groupesSection.innerHTML = groupes.map(g => {
+        const membres = g.membres || [];
+        const membresHtml = membres.length === 0
+          ? '<p style="color:var(--text-light)">Aucun membre.</p>'
+          : `<div class="ministers-grid">${membres.map(m => {
+              const photoHtml = m.photo
+                ? `<img src="${m.photo}" alt="${m.nom||''}" style="width:100%;height:100%;object-fit:cover;"/>`
+                : `<span>${initiales(m.nom)}</span>`;
+              return `
+                <div class="minister-card">
+                  <div class="minister-av">${photoHtml}</div>
+                  <p class="minister-name">${m.nom || ''}</p>
+                  <p class="minister-role">${m.titre || ''}</p>
+                </div>`;
+            }).join('')}</div>`;
+        return `
+          <div class="ornament">— — —</div>
+          <h2>${g.nom || 'Groupe'}</h2>
+          ${membresHtml}`;
+      }).join('');
+    }
+  });
+</script>
+<script>
+  // Hide page loader once DOM + Firebase content is ready
+  (function() {
+    function hideLoader() {
+      var l = document.getElementById('page-loader');
+      if (l) l.classList.add('hidden');
+    }
+    // Fallback: hide after 3.5s no matter what
+    var fallback = setTimeout(hideLoader, 3500);
+    document.addEventListener('kerdore:ready', function() {
+      clearTimeout(fallback); hideLoader();
+    });
+    // Also hide on window load
+    window.addEventListener('load', function() {
+      setTimeout(hideLoader, 600);
+    });
+  })();
+</script>
+</body>
+</html>

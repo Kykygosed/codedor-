@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Tout savoir sur la citoyenneté kerdoréine : conditions d'admission, procédure et contact avec la Chancellerie d'État."/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://info-kerdore.netlify.app/citoyennete.html"/>
+  <!-- Open Graph -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Citoyenneté — Démocratie de Kerdoré"/>
+  <meta property="og:description" content="Tout savoir sur la citoyenneté kerdoréine : conditions d'admission, procédure et contact avec la Chancellerie d'État."/>
+  <meta property="og:url" content="https://info-kerdore.netlify.app/citoyennete.html"/>
+  <meta property="og:image" content="https://info-kerdore.netlify.app/assets/drapeau_officiel.png"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Citoyenneté — Démocratie de Kerdoré"/>
+  <meta name="twitter:description" content="Tout savoir sur la citoyenneté kerdoréine : conditions d'admission, procédure et contact avec la Chancellerie d'État."/>
+  <title>Citoyenneté — Démocratie de Kerdoré</title>
+  <link rel="stylesheet" href="css/style.css"/>
+<style>
+/* ===== CARTE D'IDENTITÉ STYLE CNI ===== */
+.id-card-kerdore {
+  display: flex;
+  width: 100%;
+  max-width: 640px;
+  aspect-ratio: 85.6 / 54;
+  background: #f0f4f8;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.08);
+  font-family: 'Arial', sans-serif;
+  position: relative;
+  color: #1a1a2e;
+}
+.id-card-kerdore::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(90deg,rgba(0,85,164,0.04) 0px,rgba(0,85,164,0.04) 33%,rgba(255,255,255,0.01) 33%,rgba(255,255,255,0.01) 66%,rgba(239,65,53,0.04) 66%,rgba(239,65,53,0.04) 100%);
+  pointer-events: none; z-index: 0;
+}
+.id-card-kerdore::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(0,0,0,0.06) 1px, transparent 1px);
+  background-size: 14px 14px;
+  pointer-events: none; z-index: 0;
+}
+.id-card-accent { width: 10px; flex-shrink: 0; background: linear-gradient(180deg, #0f3a8a 0%, #1a5fb4 50%, #0f3a8a 100%); position: relative; z-index: 1; }
+.id-card-photo-col { width: 110px; flex-shrink: 0; padding: 12px 10px 10px 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; z-index: 1; }
+.id-card-photo { width: 90px; height: 110px; background: #c8d8e8; border: 1.5px solid #8aadcc; border-radius: 3px; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.id-card-photo img { width:100%; height:100%; object-fit:cover; }
+.id-card-photo-silhouette { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(180deg, #b8cfe0 0%, #9ab8d0 100%); }
+.id-card-photo-silhouette svg { width: 58px; height: 58px; }
+.id-card-sig-label { font-size: 0.5rem; color: #555; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 4px; text-align: center; }
+.id-card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 9px 12px 22px 8px; position: relative; z-index: 1; }
+.id-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 7px; padding-bottom: 6px; border-bottom: 1.5px solid #0f3a8a; }
+.id-card-header-left { display: flex; align-items: center; gap: 7px; }
+.id-card-emblem { width: 26px; height: 26px; flex-shrink: 0; }
+.id-card-emblem img { width: 100%; height: 100%; object-fit: contain; }
+.id-card-titles { display: flex; flex-direction: column; gap: 1px; }
+.id-card-country-name { font-size: 0.6rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; color: #0f3a8a; line-height: 1.2; }
+.id-card-card-type { font-size: 0.46rem; letter-spacing: 0.08em; text-transform: uppercase; color: #444; font-weight: 600; }
+.id-card-card-type-en { font-size: 0.4rem; letter-spacing: 0.06em; color: #888; font-style: italic; }
+.id-card-flag-badge { width: 24px; height: 24px; border-radius: 50%; background: #003399; display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: 900; color: #f5c900; letter-spacing: 0.02em; border: 1.5px solid #f5c900; flex-shrink: 0; }
+.id-card-fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; flex: 1; }
+.id-card-field { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.id-card-field.full { grid-column: 1 / -1; }
+.id-field-label { font-size: 0.44rem; letter-spacing: 0.1em; text-transform: uppercase; color: #0f3a8a; font-weight: 700; line-height: 1; }
+.id-field-label-en { font-size: 0.38rem; color: #888; font-style: italic; }
+.id-field-val { font-size: 0.74rem; font-weight: 700; color: #1a1a2e; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.id-field-val.small { font-size: 0.62rem; }
+.id-card-bottom { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 6px; padding-top: 5px; border-top: 1px solid rgba(15,58,138,0.2); gap: 8px; }
+.id-card-docnum { display: flex; flex-direction: column; gap: 1px; }
+.id-card-docnum-label { font-size: 0.42rem; letter-spacing: 0.1em; text-transform: uppercase; color: #0f3a8a; font-weight: 700; }
+.id-card-docnum-val { font-size: 0.88rem; font-weight: 900; letter-spacing: 0.12em; color: #0f3a8a; font-family: 'Courier New', monospace; }
+.id-card-expiry { display: flex; flex-direction: column; gap: 1px; text-align: right; }
+.id-card-expiry-label { font-size: 0.42rem; letter-spacing: 0.1em; text-transform: uppercase; color: #0f3a8a; font-weight: 700; }
+.id-card-expiry-val { font-size: 0.76rem; font-weight: 700; font-family: 'Courier New', monospace; }
+.id-card-mrz-strip { background: rgba(255,255,255,0.6); border-top: 1px solid rgba(0,0,0,0.08); padding: 3px 10px; font-size: 0.43rem; color: rgba(0,0,0,0.35); letter-spacing: 0.06em; font-family: 'Courier New', monospace; white-space: nowrap; overflow: hidden; position: absolute; bottom: 0; left: 10px; right: 0; z-index: 2; }
+.citizen-section { margin-bottom: 2.5rem; }
+.citizen-label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-light); margin-bottom: 0.75rem; }
+</style>
+</head>
+<body>
+<!-- PAGE LOADER -->
+<div class="page-loader" id="page-loader">
+  <div class="loader-flag">
+    <img src="assets/drapeau.png" alt="Kerdoré"/>
+  </div>
+  <div class="loader-dots"><span></span><span></span><span></span></div>
+  <p class="loader-label">Chargement en cours</p>
+</div>
+<nav class="navbar" id="main-nav"></nav>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <p class="page-label">Rejoindre la Nation</p>
+    <h1 class="page-title">Citoyenneté</h1>
+    <p class="page-desc">Devenir citoyen de la Démocratie de Kerdoré</p>
+  </div>
+</div>
+
+<div class="content-area">
+  <h2>La Citoyenneté Kerdoréine</h2>
+  <p id="cit-intro">La citoyenneté kerdoreine est un lien sacré entre l'individu et la Démocratie.</p>
+
+  <h2>Conditions d'Admission</h2>
+  <p id="cit-conditions">Pour prétendre à la citoyenneté de Kerdoré, le candidat doit remplir plusieurs conditions.</p>
+
+  <h2>Procédure</h2>
+  <div class="steps-grid" id="steps-grid">
+    <!-- Chargé dynamiquement -->
+  </div>
+
+  <div class="ornament">✦ ✦ ✦</div>
+
+  <h2>Contact</h2>
+  <p>Pour toute demande de citoyenneté ou question, <a href="contact.html" style="color:var(--red);font-weight:600;">utilisez le formulaire officiel de contact</a> ou déposez directement votre candidature depuis la page dédiée.</p>
+
+  <div style="margin-top:1.5rem;">
+    <a href="contact.html#citoyennete" class="btn btn-red" onclick="localStorage.setItem('tab','citoyennete')">🎖️ Déposer une demande de citoyenneté</a>
+  </div>
+
+  <div class="ornament">✦ ✦ ✦</div>
+
+  <!-- MA CARTE D'IDENTITÉ -->
+  <h2 style="margin-top:0;">Ma Carte d'Identité</h2>
+  <div id="my-card-section">
+    <div id="my-card-gate" style="background:var(--off-white);border:1.5px solid var(--border);border-radius:6px;padding:2rem;text-align:center;">
+      <div style="font-size:2rem;margin-bottom:0.75rem;">🔐</div>
+      <p style="font-weight:600;color:var(--black);margin-bottom:0.5rem;">Connectez-vous pour voir votre carte</p>
+      <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:1.2rem;">Votre carte d'identité kerdoreine est accessible uniquement via votre compte personnel.</p>
+      <a href="contact.html" class="btn btn-gold">Se connecter / Créer un compte</a>
+    </div>
+    <div id="my-card-content" style="display:none;"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div><div class="footer-logo">KERDORÉ</div><p class="footer-desc">Portail officiel de la Démocratie de Kerdoré.</p></div>
+      <div>
+        <p class="footer-head">Navigation</p>
+        <ul class="footer-links">
+          <li><a href="index.html">Accueil</a></li>
+          <li><a href="gouvernement.html">Gouvernement</a></li>
+          <li><a href="constitution.html">Constitution</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-head">Info</p>
+        <ul class="footer-links">
+          <li><a href="diplomatie.html">Diplomatie</a></li>
+          <li><a href="actualites.html">Actualités</a></li>
+        </ul>
+      </div>
+      <div><p class="footer-head">Admin</p><ul class="footer-links"><li><a href="admin/login.html">Espace Admin</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">Démocratie de Kerdoré — Tous droits réservés</div>
+  </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/content.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => { injectNav('citoyennete'); });
+
+  // Auth guard — show card only if logged in and is a citizen
+  auth.onAuthStateChanged(async user => {
+    const gate    = document.getElementById('my-card-gate');
+    const cardDiv = document.getElementById('my-card-content');
+    if (!user) {
+      gate.style.display = 'block';
+      cardDiv.style.display = 'none';
+      return;
+    }
+    gate.style.display = 'none';
+    cardDiv.style.display = 'block';
+    cardDiv.innerHTML = '<p style="color:var(--gray);">Recherche de votre dossier…</p>';
+
+    try {
+      // Find citizen by uid
+      const snap = await db.ref('citizens').orderByChild('uid').equalTo(user.uid).once('value');
+      if (!snap.exists()) {
+        // Maybe no uid stored — try by email
+        const snap2 = await db.ref('citizens').orderByChild('email').equalTo(user.email).once('value');
+        if (!snap2.exists()) {
+          cardDiv.innerHTML = `
+            <div style="background:var(--off-white);border:1.5px solid var(--border);border-radius:6px;padding:2rem;text-align:center;">
+              <div style="font-size:2rem;margin-bottom:0.75rem;">⏳</div>
+              <p style="font-weight:600;color:var(--black);margin-bottom:0.5rem;">Demande en cours d'examen</p>
+              <p style="font-size:0.85rem;color:var(--text-light);">Votre demande de citoyenneté n'a pas encore été traitée par les autorités, ou vous n'avez pas encore déposé de demande.</p>
+              <div style="margin-top:1.2rem;"><a href="contact.html" class="btn btn-gold">Déposer une demande</a></div>
+            </div>`;
+          return;
+        }
+        snap2.forEach(c => renderMyCard(cardDiv, c.val()));
+        return;
+      }
+      snap.forEach(c => renderMyCard(cardDiv, c.val()));
+    } catch(e) {
+      cardDiv.innerHTML = '<p style="color:var(--red);">Erreur de chargement. Veuillez rafraîchir la page.</p>';
+    }
+  });
+
+  function renderMyCard(el, c) {
+    const sexeLabel = { M: 'M.', F: 'Mme', A: '' };
+    const prefix    = sexeLabel[c.sexe] || '';
+    const photoHTML = c.photo
+      ? `<img src="${c.photo}" alt="Photo"/>`
+      : `<div class="id-card-photo-silhouette"><svg viewBox="0 0 80 80" fill="none"><ellipse cx="40" cy="28" rx="16" ry="18" fill="#8aadcc"/><ellipse cx="40" cy="75" rx="28" ry="22" fill="#8aadcc"/></svg></div>`;
+
+    const today   = new Date(); today.setHours(0,0,0,0);
+    const expDate = c.expiration ? new Date(c.expiration) : null;
+    const daysLeft = expDate ? Math.ceil((expDate - today) / (1000*60*60*24)) : null;
+    let expiryColor = '#1a1a2e';
+    if (daysLeft !== null && daysLeft < 0)       expiryColor = '#dc2626';
+    else if (daysLeft !== null && daysLeft <= 30) expiryColor = '#ea580c';
+
+    const isActif     = (c.statut || 'actif') === 'actif';
+    const sexeDisplay = c.sexe === 'M' ? 'M / Male' : c.sexe === 'F' ? 'F / Female' : 'A';
+    const naissDisplay = c.naissance ? new Date(c.naissance).toLocaleDateString('fr-FR') : '—';
+    const expiryDisplay = expDate ? expDate.toLocaleDateString('fr-FR') : '—';
+    const mrzNom    = (c.nom||'').toUpperCase().replace(/ /g,'<').padEnd(13,'<');
+    const mrzPrenom = (c.prenom||'').toUpperCase().replace(/ /g,'<').padEnd(10,'<');
+    const mrzDate   = (c.naissance||'').replace(/-/g,'').slice(2) || '000000';
+
+    const renewalNotice = c.renewalRequested ? `
+      <div style="background:#ede9fe;border:1px solid #c4b5fd;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:0.6rem;">
+        <span style="font-size:1.3rem;">📬</span>
+        <div>
+          <p style="font-size:0.82rem;font-weight:700;color:#7c3aed;margin:0 0 2px;">Renouvellement requis</p>
+          <p style="font-size:0.78rem;color:#6d28d9;margin:0;">Les autorités de Kerdoré vous ont demandé de renouveler votre carte d'identité. Veuillez contacter la chancellerie.</p>
+        </div>
+      </div>` : '';
+
+    const statusBadge = isActif
+      ? `<span style="background:#dcfce7;color:#16a34a;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:2px;">● Carte active</span>`
+      : `<span style="background:#fee2e2;color:#dc2626;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:2px;">● Carte suspendue</span>`;
+
+    el.innerHTML = `
+      <div class="citizen-section">
+        <p class="citizen-label" style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+          ${prefix} ${(c.nom||'').toUpperCase()} ${c.prenom||''}
+          ${statusBadge}
+        </p>
+        ${renewalNotice}
+        <div class="id-card-kerdore" style="position:relative;">
+          <div class="id-card-accent"></div>
+          <div class="id-card-photo-col">
+            <div class="id-card-photo">${photoHTML}</div>
+            <div class="id-card-sig-label">Signature</div>
+            <div style="width:70px;height:16px;border-bottom:1px solid #aaa;margin-top:2px;"></div>
+          </div>
+          <div class="id-card-body">
+            <div class="id-card-header">
+              <div class="id-card-header-left">
+                <div class="id-card-emblem"><img src="assets/drapeau.png" alt="Kerdoré"/></div>
+                <div class="id-card-titles">
+                  <div class="id-card-country-name">DÉMOCRATIE DE KERDORÉ</div>
+                  <div class="id-card-card-type">CARTE NATIONALE D'IDENTITÉ</div>
+                  <div class="id-card-card-type-en">NATIONAL IDENTITY CARD</div>
+                </div>
+              </div>
+              <div class="id-card-flag-badge">KDR</div>
+            </div>
+            <div class="id-card-fields-grid">
+              <div class="id-card-field full">
+                <div class="id-field-label">NOM / <span class="id-field-label-en">Surname</span></div>
+                <div class="id-field-val">${(c.nom||'').toUpperCase()}</div>
+              </div>
+              <div class="id-card-field full">
+                <div class="id-field-label">PRÉNOMS / <span class="id-field-label-en">Given names</span></div>
+                <div class="id-field-val">${c.prenom||'—'}</div>
+              </div>
+              <div class="id-card-field">
+                <div class="id-field-label">SEXE / <span class="id-field-label-en">Sex</span></div>
+                <div class="id-field-val">${sexeDisplay}</div>
+              </div>
+              <div class="id-card-field">
+                <div class="id-field-label">DATE DE NAISS. / <span class="id-field-label-en">Date of birth</span></div>
+                <div class="id-field-val">${naissDisplay}</div>
+              </div>
+              <div class="id-card-field">
+                <div class="id-field-label">NATIONALITÉ / <span class="id-field-label-en">Nationality</span></div>
+                <div class="id-field-val small">KERDOREINE</div>
+              </div>
+              <div class="id-card-field">
+                <div class="id-field-label">DATE D'ADHÉSION</div>
+                <div class="id-field-val small">${c.adhesion||'—'}</div>
+              </div>
+              ${c.adresse ? `<div class="id-card-field full">
+                <div class="id-field-label">ADRESSE / <span class="id-field-label-en">Address</span></div>
+                <div class="id-field-val small" style="font-size:0.6rem;white-space:normal;">${c.adresse}</div>
+              </div>` : ''}
+            </div>
+            <div class="id-card-bottom">
+              <div class="id-card-docnum">
+                <div class="id-card-docnum-label">N° DU DOCUMENT / <span style="font-style:italic;font-weight:400;color:#888;font-size:0.38rem;">Document No.</span></div>
+                <div class="id-card-docnum-val">${c.identifiant||'??????'}</div>
+              </div>
+              <div class="id-card-expiry">
+                <div class="id-card-expiry-label">DATE D'EXPIR. / <span style="font-style:italic;font-weight:400;color:#888;font-size:0.38rem;">Expiry date</span></div>
+                <div class="id-card-expiry-val" style="color:${expiryColor};">${expiryDisplay}</div>
+              </div>
+            </div>
+            <div class="id-card-mrz-strip">
+              KDR&lt;&lt;${mrzNom}&lt;${mrzPrenom}&lt;&lt;&lt;&lt;&lt;<br/>
+              ${c.identifiant||'000000'}KDR${mrzDate}&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+  }
+  document.addEventListener('DOMContentLoaded', async () => {
+    const cit = await loadContent('citoyennete');
+    setText('cit-intro',      cit.intro);
+    setText('cit-conditions', cit.conditions);
+
+    const stepLines = (cit.procedure || '').split('\n').filter(l => l.trim());
+    const grid = document.getElementById('steps-grid');
+    if (stepLines.length === 0) {
+      grid.innerHTML = '<p style="color:var(--gray)">Procédure à définir.</p>';
+    } else {
+      grid.innerHTML = stepLines.map((line, i) => `
+        <div class="step-card">
+          <div class="step-num">${i + 1}</div>
+          <p class="step-title">Étape ${i + 1}</p>
+          <p class="step-desc">${line}</p>
+        </div>`).join('');
+    }
+  });
+</script>
+<script>
+  // Hide page loader once DOM + Firebase content is ready
+  (function() {
+    function hideLoader() {
+      var l = document.getElementById('page-loader');
+      if (l) l.classList.add('hidden');
+    }
+    var fallback = setTimeout(hideLoader, 2500);
+    document.addEventListener('kerdore:ready', function() { clearTimeout(fallback); hideLoader(); });
+    window.addEventListener('load', function() { setTimeout(hideLoader, 400); });
+  })();
+</script>
+</body>
+</html>

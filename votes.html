@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Votes & Référendums — Kerdoré</title>
+  <link rel="icon" type="image/png" href="assets/drapeau_officiel.png"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    /* ── Vote page specific styles ── */
+    .election-block {
+      border: 1px solid var(--border);
+      background: var(--white);
+      padding: 2rem;
+      margin-bottom: 2.5rem;
+    }
+    .election-block-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .election-icon { font-size: 2.2rem; line-height:1; }
+    .election-header-text { flex: 1; }
+    .election-title { font-size: 1.25rem; font-weight: 800; color: var(--blue-dark); margin: 0 0 0.25rem; }
+    .election-desc  { font-size: 0.9rem; color: var(--text-light); margin: 0; line-height: 1.5; }
+    .election-status-badge {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 0.3rem 0.7rem;
+      border-radius: 2px; white-space: nowrap; align-self: flex-start;
+    }
+    .status-idle         { background:#f4f4f4; color:#888; border:1px solid #ddd; }
+    .status-candidatures { background:#e8f5e9; color:#2e7d32; border:1px solid #a5d6a7; }
+    .status-vote_t1      { background:#e3f2fd; color:#1565c0; border:1px solid #90caf9; }
+    .status-selection_t2 { background:#fff3e0; color:#e65100; border:1px solid #ffcc80; }
+    .status-vote_t2      { background:#f3e5f5; color:#6a1b9a; border:1px solid #ce93d8; }
+    .status-closed       { background:#fce4ec; color:#c62828; border:1px solid #ef9a9a; }
+
+    .vote-info-box {
+      background: var(--blue-light); border: 1px solid #c5d5f0;
+      padding: 1rem 1.3rem; font-size:0.9rem; color: var(--blue-dark);
+      margin-bottom: 1.2rem; border-radius: 2px;
+    }
+    .vote-info-box.success { background:#e8f5e9; border-color:#a5d6a7; color:#2e7d32; }
+    .vote-info-box.warning { background:#fff3e0; border-color:#ffcc80; color:#e65100; }
+
+    /* Candidate grid (vote view) */
+    .vote-candidates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .vote-candidate-card {
+      border: 2px solid var(--border); padding: 1.2rem 0.9rem;
+      text-align: center; cursor: pointer;
+      transition: border-color .15s, box-shadow .15s, transform .1s;
+      background: var(--white);
+    }
+    .vote-candidate-card:hover {
+      border-color: var(--blue); box-shadow: 0 3px 12px rgba(0,49,137,0.12);
+      transform: translateY(-2px);
+    }
+    .vote-candidate-card.selected {
+      border-color: var(--blue-dark); background: var(--blue-light);
+    }
+    .vote-av {
+      width: 70px; height: 70px; border-radius: 4px;
+      background: var(--blue-light); margin: 0 auto 0.8rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; font-weight: 800; color: var(--blue);
+      overflow: hidden;
+    }
+    .vote-av img { width:100%; height:100%; object-fit:cover; }
+    .vote-cand-name { font-size: 0.82rem; font-weight: 700; color: var(--black); margin-bottom: 0.2rem; }
+    .vote-cand-pres { font-size: 0.73rem; color: var(--text-light); line-height:1.4;
+      overflow:hidden; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; }
+
+    /* Candidate list (candidatures view — read only) */
+    .cand-list { margin-bottom: 1.5rem; }
+    .cand-list-item {
+      display: flex; align-items: center; gap: 0.9rem;
+      padding: 0.75rem 1rem; border-bottom: 1px solid var(--border);
+    }
+    .cand-list-item:last-child { border-bottom: none; }
+    .cand-list-av {
+      width: 44px; height: 44px; border-radius: 3px; flex-shrink: 0;
+      background: var(--blue-light); display: flex; align-items: center;
+      justify-content: center; font-size: 1rem; font-weight: 800;
+      color: var(--blue); overflow: hidden;
+    }
+    .cand-list-av img { width:100%; height:100%; object-fit:cover; }
+    .cand-list-name { font-size: 0.85rem; font-weight: 700; color: var(--black); }
+    .cand-list-pres { font-size: 0.78rem; color: var(--text-light); line-height:1.4; margin-top:0.15rem; }
+
+    /* Candidature form */
+    .cand-form-block {
+      border: 1px dashed var(--border); padding: 1.5rem;
+      background: var(--off-white); margin-top: 1.2rem;
+    }
+    .cand-form-title {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.09em;
+      text-transform: uppercase; color: var(--blue); margin-bottom: 1rem;
+    }
+    .cand-photo-area {
+      border: 1px dashed var(--border); padding: 0.8rem; cursor: pointer;
+      text-align: center; font-size: 0.82rem; color: var(--text-light);
+      background: var(--white); margin-bottom: 0.3rem;
+    }
+    .cand-photo-preview { width:60px; height:60px; object-fit:cover; border-radius:3px; margin:0 auto 0.3rem; display:block; }
+
+    /* Vote confirmation overlay */
+    .vote-overlay {
+      position: fixed; inset:0; background: rgba(0,0,0,0.55);
+      z-index: 9999; display: flex; align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .vote-overlay-box {
+      background: var(--white); max-width: 420px; width: 100%;
+      padding: 2rem; text-align: center;
+    }
+    .vote-overlay-av {
+      width: 80px; height: 80px; border-radius: 4px;
+      background: var(--blue-light); margin: 0 auto 1rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; font-weight: 800; color: var(--blue);
+      overflow: hidden;
+    }
+    .vote-overlay-av img { width:100%; height:100%; object-fit:cover; }
+    .vote-overlay-name { font-size: 1.1rem; font-weight: 800; color: var(--blue-dark); margin-bottom: 0.4rem; }
+    .vote-overlay-warn {
+      font-size: 0.82rem; color: var(--text-light); margin-bottom: 1.5rem; line-height:1.6;
+    }
+    .vote-overlay-warn strong { color: var(--black); }
+    .vote-overlay-btns { display:flex; gap:0.7rem; justify-content:center; }
+
+    .vote-empty { padding: 2rem; text-align:center; color: var(--text-light); font-style:italic; }
+    .vote-tour-badge {
+      display:inline-block; font-size:0.68rem; font-weight:700; letter-spacing:0.1em;
+      text-transform:uppercase; background:var(--blue-dark); color:var(--white);
+      padding:0.2rem 0.6rem; margin-bottom:0.8rem;
+    }
+  </style>
+</head>
+<body>
+<nav id="main-nav"></nav>
+
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <p class="page-hero-eyebrow">République de Kerdoré</p>
+    <h1 class="page-hero-title">Votes & Référendums</h1>
+    <p class="page-hero-sub">Exercez votre droit civique. Les élections nationales de Kerdoré.</p>
+  </div>
+</section>
+
+<div class="content-area">
+  <div id="election-chef_supreme"><div class="vote-empty">Chargement…</div></div>
+  <div class="ornament">— — —</div>
+  <div id="election-deputes"><div class="vote-empty">Chargement…</div></div>
+</div>
+
+<!-- Confirmation overlay (hidden) -->
+<div class="vote-overlay" id="vote-overlay" style="display:none;">
+  <div class="vote-overlay-box">
+    <div class="vote-overlay-av" id="ov-av"></div>
+    <p class="vote-overlay-name" id="ov-name"></p>
+    <p class="vote-overlay-warn">
+      Vous êtes sur le point de voter pour ce candidat.<br/>
+      <strong>Ce choix est définitif et ne peut pas être annulé.</strong>
+    </p>
+    <div class="vote-overlay-btns">
+      <button class="btn btn-ghost" onclick="closeOverlay()">Annuler</button>
+      <button class="btn btn-blue" id="ov-confirm-btn">Confirmer mon vote</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/nav.js"></script>
+<script>
+injectNav('votes');
+
+// ── Config ──────────────────────────────────────────────────
+const ELECTIONS = {
+  chef_supreme: { icon: '👑', label: 'Élection du Chef Suprême' },
+  deputes:      { icon: '🏛️', label: 'Élection des Députés'    }
+};
+const STATUS_META = {
+  idle:         { label: 'Aucune élection en cours', css: 'status-idle' },
+  candidatures: { label: 'Candidatures ouvertes',    css: 'status-candidatures' },
+  vote_t1:      { label: 'Vote — Tour 1',            css: 'status-vote_t1' },
+  selection_t2: { label: 'Tour 2 en préparation',    css: 'status-selection_t2' },
+  vote_t2:      { label: 'Vote — Tour 2',            css: 'status-vote_t2' },
+  closed:       { label: 'Élection clôturée',        css: 'status-closed' }
+};
+
+// ── State ────────────────────────────────────────────────────
+let userIPKey = null;
+let pendingVote = null; // { type, tour, candidatId }
+
+// ── IP detection ─────────────────────────────────────────────
+async function getIP() {
+  try {
+    const r = await fetch('https://api.ipify.org?format=json');
+    const d = await r.json();
+    userIPKey = d.ip.replace(/\./g,'_').replace(/:/g,'-');
+  } catch(_) {
+    // Fallback fingerprint (browser-unique but not IP-based)
+    const fp = navigator.userAgent + screen.width + screen.height + navigator.language;
+    let hash = 0;
+    for (let i = 0; i < fp.length; i++) hash = ((hash << 5) - hash) + fp.charCodeAt(i);
+    userIPKey = 'fp_' + Math.abs(hash).toString(36);
+  }
+}
+
+// ── Init ─────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  await getIP();
+  await Promise.all([
+    renderElection('chef_supreme'),
+    renderElection('deputes')
+  ]);
+});
+
+// ── Render one election ───────────────────────────────────────
+async function renderElection(type) {
+  const container = document.getElementById('election-' + type);
+  const meta = ELECTIONS[type];
+
+  try {
+    const [configSnap, candidatsSnap] = await Promise.all([
+      db.ref(`elections/${type}/config`).once('value'),
+      db.ref(`elections/${type}/candidats`).once('value')
+    ]);
+    const config    = configSnap.val()    || { status: 'idle' };
+    const candidats = candidatsSnap.val() || {};
+    const status    = config.status || 'idle';
+    const smeta     = STATUS_META[status] || STATUS_META.idle;
+
+    // Check if this user already voted (T1 and T2)
+    let myVoteT1 = null, myVoteT2 = null, alreadyCandidate = false;
+    if (userIPKey) {
+      const [v1, v2, cip] = await Promise.all([
+        db.ref(`elections/${type}/votes_t1/${userIPKey}`).once('value'),
+        db.ref(`elections/${type}/votes_t2/${userIPKey}`).once('value'),
+        db.ref(`elections/${type}/candidatures_ip/${userIPKey}`).once('value')
+      ]);
+      myVoteT1 = v1.val();
+      myVoteT2 = v2.val();
+      alreadyCandidate = cip.exists();
+    }
+
+    const candidatsList = Object.entries(candidats); // [[id, data], ...]
+    const finalists     = candidatsList.filter(([,c]) => c.selected_t2);
+
+    let html = `
+      <div class="election-block">
+        <div class="election-block-header">
+          <span class="election-icon">${meta.icon}</span>
+          <div class="election-header-text">
+            <h2 class="election-title">${config.titre || meta.label}</h2>
+            ${config.description ? `<p class="election-desc">${esc(config.description)}</p>` : ''}
+          </div>
+          <span class="election-status-badge ${smeta.css}">${smeta.label}</span>
+        </div>`;
+
+    switch (status) {
+      case 'idle':
+        html += `<div class="vote-empty">Aucune élection en cours pour ce poste.</div>`;
+        break;
+
+      case 'candidatures':
+        html += `<span class="vote-tour-badge">Tour 1 — Candidatures</span>`;
+        if (candidatsList.length > 0) {
+          html += `<p style="font-size:0.85rem;color:var(--text-light);margin-bottom:0.8rem;">${candidatsList.length} candidat(s) inscrit(s) :</p>`;
+          html += buildCandidateList(candidatsList);
+        } else {
+          html += `<p style="font-size:0.88rem;color:var(--text-light);margin-bottom:1rem;">Aucun candidat pour l'instant. Soyez le premier !</p>`;
+        }
+        if (alreadyCandidate) {
+          html += `<div class="vote-info-box success">✅ Vous vous êtes déjà présenté(e) comme candidat(e).</div>`;
+        } else {
+          html += buildCandidatureForm(type);
+        }
+        break;
+
+      case 'vote_t1':
+        html += `<span class="vote-tour-badge">Tour 1 — Vote en cours</span>`;
+        if (myVoteT1) {
+          html += `<div class="vote-info-box success">✅ Vous avez voté au Tour 1. Le résultat sera publié à l'issue de l'élection.</div>`;
+        } else if (candidatsList.length === 0) {
+          html += `<div class="vote-info-box warning">⚠️ Aucun candidat n'est inscrit.</div>`;
+        } else {
+          html += `<p style="font-size:0.88rem;color:var(--text-light);margin-bottom:1rem;">Cliquez sur un candidat pour voter. <strong style="color:var(--black);">Ce choix est définitif.</strong></p>`;
+          html += buildVoteGrid(candidatsList, type, 't1');
+        }
+        break;
+
+      case 'selection_t2':
+        html += `<div class="vote-info-box warning">⏳ Le Tour 1 est terminé. Le Tour 2 est en cours de préparation — revenez bientôt.</div>`;
+        break;
+
+      case 'vote_t2':
+        html += `<span class="vote-tour-badge">Tour 2 — Finalistes</span>`;
+        if (myVoteT2) {
+          html += `<div class="vote-info-box success">✅ Vous avez voté au Tour 2. Le résultat sera publié à l'issue de l'élection.</div>`;
+        } else if (finalists.length === 0) {
+          html += `<div class="vote-info-box warning">⚠️ Les finalistes n'ont pas encore été désignés.</div>`;
+        } else {
+          html += `<p style="font-size:0.88rem;color:var(--text-light);margin-bottom:1rem;">Cliquez sur un finaliste pour voter. <strong style="color:var(--black);">Ce choix est définitif.</strong></p>`;
+          html += buildVoteGrid(finalists, type, 't2');
+        }
+        break;
+
+      case 'closed':
+        html += `<div class="vote-info-box">🏁 Cette élection est clôturée. Les résultats seront publiés officiellement par les autorités de Kerdoré.</div>`;
+        break;
+    }
+
+    html += `</div>`;
+    container.innerHTML = html;
+
+  } catch(e) {
+    console.error(e);
+    container.innerHTML = `<div class="vote-info-box warning">Impossible de charger l'élection. Réessayez plus tard.</div>`;
+  }
+}
+
+// ── Build HTML helpers ────────────────────────────────────────
+function buildCandidateList(list) {
+  return `<div class="cand-list">${list.map(([,c]) => `
+    <div class="cand-list-item">
+      <div class="cand-list-av">${c.photo ? `<img src="${c.photo}" alt="${esc(c.nom)}"/>` : initiales(c.nom)}</div>
+      <div>
+        <p class="cand-list-name">${esc(c.nom)}</p>
+        ${c.presentation ? `<p class="cand-list-pres">${esc(c.presentation)}</p>` : ''}
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function buildVoteGrid(list, type, tour) {
+  return `<div class="vote-candidates-grid">${list.map(([id, c]) => `
+    <div class="vote-candidate-card"
+      data-type="${type}" data-tour="${tour}" data-id="${id}"
+      data-nom="${esc(c.nom)}" data-photo="${esc(c.photo||'')}"
+      onclick="cardClick(this)">
+      <div class="vote-av">${c.photo ? `<img src="${c.photo}" alt="${esc(c.nom)}"/>` : initiales(c.nom)}</div>
+      <p class="vote-cand-name">${esc(c.nom)}</p>
+      ${c.presentation ? `<p class="vote-cand-pres">${esc(c.presentation)}</p>` : ''}
+      <button class="btn btn-blue" style="margin-top:0.8rem;width:100%;font-size:0.78rem;padding:0.4rem;"
+        onclick="event.stopPropagation();cardClick(this.closest('.vote-candidate-card'))">Voter</button>
+    </div>`).join('')}</div>`;
+}
+
+function cardClick(card) {
+  openVoteOverlay(
+    card.dataset.type,
+    card.dataset.tour,
+    card.dataset.id,
+    card.dataset.nom,
+    card.dataset.photo
+  );
+}
+
+function buildCandidatureForm(type) {
+  return `
+    <div class="cand-form-block">
+      <p class="cand-form-title">📝 Se présenter comme candidat(e)</p>
+      <div class="form-group">
+        <label class="form-label">Votre nom complet</label>
+        <input class="form-input" id="cand-nom-${type}" type="text" placeholder="Prénom Nom"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Présentation / Programme (optionnel)</label>
+        <textarea class="form-textarea" id="cand-pres-${type}" style="min-height:80px;" placeholder="Décrivez votre candidature…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Photo (optionnel)</label>
+        <div class="cand-photo-area" id="cand-photo-area-${type}" onclick="document.getElementById('cand-photo-input-${type}').click()">
+          <img id="cand-photo-preview-${type}" class="cand-photo-preview" style="display:none;" alt="Aperçu"/>
+          <span id="cand-photo-label-${type}">📷 Ajouter une photo</span>
+        </div>
+        <input type="hidden" id="cand-photo-data-${type}"/>
+        <input type="file" id="cand-photo-input-${type}" accept="image/*" style="display:none"
+          onchange="handleCandidaturePhoto('${type}')"/>
+      </div>
+      <button class="btn btn-blue" onclick="submitCandidature('${type}')" style="width:100%;">
+        Confirmer ma candidature
+      </button>
+    </div>`;
+}
+
+// ── Photo upload for candidature ──────────────────────────────
+function handleCandidaturePhoto(type) {
+  const file = document.getElementById(`cand-photo-input-${type}`).files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { alert('Photo trop volumineuse (max 5 Mo).'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const data = e.target.result;
+    document.getElementById(`cand-photo-data-${type}`).value = data;
+    const prev = document.getElementById(`cand-photo-preview-${type}`);
+    prev.src = data; prev.style.display = 'block';
+    document.getElementById(`cand-photo-label-${type}`).style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Submit candidature ────────────────────────────────────────
+async function submitCandidature(type) {
+  const nom   = document.getElementById(`cand-nom-${type}`).value.trim();
+  const pres  = document.getElementById(`cand-pres-${type}`).value.trim();
+  const photo = document.getElementById(`cand-photo-data-${type}`).value;
+
+  if (!nom) { alert('Veuillez saisir votre nom.'); return; }
+  if (!userIPKey) { alert('Impossible de vérifier votre identité. Rechargez la page.'); return; }
+
+  // Double-check not already candidate
+  const ipSnap = await db.ref(`elections/${type}/candidatures_ip/${userIPKey}`).once('value');
+  if (ipSnap.exists()) { alert('Vous vous êtes déjà présenté(e).'); return; }
+
+  // Check election still in candidatures phase
+  const cfgSnap = await db.ref(`elections/${type}/config/status`).once('value');
+  if (cfgSnap.val() !== 'candidatures') { alert('Les candidatures ne sont plus ouvertes.'); return; }
+
+  try {
+    const candidatData = { nom, presentation: pres, photo: photo || null, timestamp: Date.now() };
+    await db.ref(`elections/${type}/candidats`).push(candidatData);
+    await db.ref(`elections/${type}/candidatures_ip/${userIPKey}`).set(Date.now());
+    await renderElection(type);
+  } catch(e) {
+    alert('Erreur lors de l\'inscription : ' + e.message);
+  }
+}
+
+// ── Vote overlay ──────────────────────────────────────────────
+function openVoteOverlay(type, tour, candidatId, candidatNom, candidatPhoto) {
+  pendingVote = { type, tour, candidatId };
+  const av = document.getElementById('ov-av');
+  av.innerHTML = candidatPhoto ? `<img src="${candidatPhoto}" alt="${candidatNom}"/>` : initiales(candidatNom);
+  document.getElementById('ov-name').textContent = candidatNom;
+  document.getElementById('ov-confirm-btn').onclick = confirmVote;
+  document.getElementById('vote-overlay').style.display = 'flex';
+}
+
+function closeOverlay() {
+  document.getElementById('vote-overlay').style.display = 'none';
+  pendingVote = null;
+}
+
+async function confirmVote() {
+  if (!pendingVote) return;
+  const { type, tour, candidatId } = pendingVote;
+  closeOverlay();
+
+  if (!userIPKey) { alert('Impossible de vérifier votre identité.'); return; }
+
+  // Check not already voted
+  const voteRef = db.ref(`elections/${type}/votes_${tour}/${userIPKey}`);
+  const existing = await voteRef.once('value');
+  if (existing.exists()) { alert('Vous avez déjà voté.'); await renderElection(type); return; }
+
+  // Check election still open
+  const cfgSnap = await db.ref(`elections/${type}/config/status`).once('value');
+  const expectedStatus = tour === 't1' ? 'vote_t1' : 'vote_t2';
+  if (cfgSnap.val() !== expectedStatus) { alert('Le vote n\'est plus ouvert.'); await renderElection(type); return; }
+
+  try {
+    await voteRef.set(candidatId);
+    await renderElection(type);
+  } catch(e) {
+    alert('Erreur lors du vote : ' + e.message);
+  }
+}
+
+// Close overlay on background click
+document.getElementById('vote-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeOverlay();
+});
+
+// ── Util ──────────────────────────────────────────────────────
+function esc(str) {
+  return (str||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="La Constitution de la Démocratie de Kerdoré : loi fondamentale, droits et devoirs des citoyens."/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://info-kerdore.netlify.app/constitution.html"/>
+  <!-- Open Graph -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Constitution — Démocratie de Kerdoré"/>
+  <meta property="og:description" content="La Constitution de la Démocratie de Kerdoré : loi fondamentale, droits et devoirs des citoyens."/>
+  <meta property="og:url" content="https://info-kerdore.netlify.app/constitution.html"/>
+  <meta property="og:image" content="https://info-kerdore.netlify.app/assets/drapeau_officiel.png"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Constitution — Démocratie de Kerdoré"/>
+  <meta name="twitter:description" content="La Constitution de la Démocratie de Kerdoré : loi fondamentale, droits et devoirs des citoyens."/>
+  <title>Constitution — Démocratie de Kerdoré</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<!-- PAGE LOADER -->
+<div class="page-loader" id="page-loader">
+  <div class="loader-flag">
+    <img src="assets/drapeau.png" alt="Kerdoré"/>
+  </div>
+  <div class="loader-dots"><span></span><span></span><span></span></div>
+  <p class="loader-label">Chargement en cours</p>
+</div>
+<nav class="navbar" id="main-nav"></nav>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <p class="page-label">Loi Fondamentale</p>
+    <h1 class="page-title">Constitution</h1>
+    <p class="page-desc">La Charte qui fonde et régit la Démocratie de Kerdoré</p>
+  </div>
+</div>
+
+<div class="content-area">
+  <div class="official-doc">
+    <div class="doc-header">
+      <div class="doc-seal" id="doc-seal-icon"></div>
+      <h2 class="doc-title">Constitution de la Démocratie de Kerdoré</h2>
+      <p class="doc-subtitle">Adoptée par l'Assemblée Constituante — En vigueur</p>
+    </div>
+
+    <p class="doc-preambule" id="constitution-preambule">
+      Nous, citoyens de Kerdoré…
+    </p>
+
+    <div id="articles-container">
+      <!-- Chargé dynamiquement -->
+    </div>
+
+    <div class="ornament">✦ ✦ ✦</div>
+    <p style="text-align:center; font-style:italic; color:var(--gray); font-size:0.9rem;">
+      Fait à Kerdoré, par l'Assemblée Constituante de la Démocratie
+    </p>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div><div class="footer-logo">KERDORÉ</div><p class="footer-desc">Portail officiel de la Démocratie de Kerdoré.</p></div>
+      <div>
+        <p class="footer-head">Navigation</p>
+        <ul class="footer-links">
+          <li><a href="index.html">Accueil</a></li>
+          <li><a href="gouvernement.html">Gouvernement</a></li>
+          <li><a href="diplomatie.html">Diplomatie</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-head">Citoyens</p>
+        <ul class="footer-links">
+          <li><a href="citoyennete.html">Citoyenneté</a></li>
+          <li><a href="actualites.html">Actualités</a></li>
+        </ul>
+      </div>
+      <div><p class="footer-head">Admin</p><ul class="footer-links"><li><a href="admin/login.html">Espace Admin</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">Démocratie de Kerdoré — Tous droits réservés</div>
+  </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/content.js"></script>
+<script>
+  injectNav('constitution');
+
+  // Triskelion SVG — sceau officiel
+  function triskelionSVG(size) {
+    return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" fill="currentColor">
+      <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <g transform="translate(50,50)">
+        <path d="M0,0 C-2,-8 -3,-18 2,-26 C7,-34 18,-32 18,-20 C18,-10 8,-3 0,0Z"/>
+        <path d="M0,0 C-2,-8 -3,-18 2,-26 C7,-34 18,-32 18,-20 C18,-10 8,-3 0,0Z" transform="rotate(120)"/>
+        <path d="M0,0 C-2,-8 -3,-18 2,-26 C7,-34 18,-32 18,-20 C18,-10 8,-3 0,0Z" transform="rotate(240)"/>
+        <circle cx="0" cy="0" r="5"/>
+      </g>
+    </svg>`;
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const con = await loadContent('constitution');
+    setText('constitution-preambule', con.preambule);
+
+    // Seal SVG
+    document.getElementById('doc-seal-icon').innerHTML = triskelionSVG(70);
+
+    const container = document.getElementById('articles-container');
+    const articles = con.articles || [];
+    if (articles.length === 0) {
+      container.innerHTML = '<p style="color:var(--gray)">Aucun article rédigé.</p>';
+    } else {
+      container.innerHTML = articles.map(a => `
+        <div class="article-block">
+          <p class="article-num">${a.num || ''}</p>
+          <p class="article-title"><strong>${a.titre || ''}</strong></p>
+          <p class="article-text">${a.texte || ''}</p>
+        </div>`).join('');
+    }
+  });
+</script>
+<script>
+  // Hide page loader once DOM + Firebase content is ready
+  (function() {
+    function hideLoader() {
+      var l = document.getElementById('page-loader');
+      if (l) l.classList.add('hidden');
+    }
+    // Fallback: hide after 3.5s no matter what
+    var fallback = setTimeout(hideLoader, 3500);
+    document.addEventListener('kerdore:ready', function() {
+      clearTimeout(fallback); hideLoader();
+    });
+    // Also hide on window load
+    window.addEventListener('load', function() {
+      setTimeout(hideLoader, 600);
+    });
+  })();
+</script>
+</body>
+</html>

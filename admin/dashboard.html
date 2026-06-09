@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tableau de Bord — Admin Kerdoré</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+<style>
+/* ===== CARTE D'IDENTITÉ STYLE CNI FRANÇAISE ===== */
+.id-card-kerdore {
+  display: flex;
+  width: 100%;
+  max-width: 680px;
+  aspect-ratio: 85.6 / 54;
+  background: #f0f4f8;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.08);
+  font-family: 'Arial', 'Helvetica Neue', sans-serif;
+  position: relative;
+  color: #1a1a2e;
+}
+/* Watermark tricolore en fond */
+.id-card-kerdore::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(0,85,164,0.04) 0px, rgba(0,85,164,0.04) 33%,
+      rgba(255,255,255,0.01) 33%, rgba(255,255,255,0.01) 66%,
+      rgba(239,65,53,0.04) 66%, rgba(239,65,53,0.04) 100%
+    );
+  pointer-events: none; z-index: 0;
+}
+/* Fine grille de sécurité */
+.id-card-kerdore::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(0,0,0,0.06) 1px, transparent 1px);
+  background-size: 14px 14px;
+  pointer-events: none; z-index: 0;
+}
+/* Bande couleur gauche (bleu Kerdoré) */
+.id-card-accent {
+  width: 10px; flex-shrink: 0;
+  background: linear-gradient(180deg, #0f3a8a 0%, #1a5fb4 50%, #0f3a8a 100%);
+  position: relative; z-index: 1;
+}
+/* Zone photo */
+.id-card-photo-col {
+  width: 115px; flex-shrink: 0;
+  padding: 12px 10px 10px 10px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 6px;
+  position: relative; z-index: 1;
+}
+.id-card-photo {
+  width: 95px; height: 115px;
+  background: #c8d8e8;
+  border: 1.5px solid #8aadcc;
+  border-radius: 3px;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.id-card-photo img { width:100%; height:100%; object-fit:cover; }
+.id-card-photo-silhouette {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(180deg, #b8cfe0 0%, #9ab8d0 100%);
+}
+.id-card-photo-silhouette svg { width: 62px; height: 62px; }
+.id-card-sig-label {
+  font-size: 0.52rem; color: #555; letter-spacing: 0.06em;
+  text-transform: uppercase; margin-top: 4px; text-align: center;
+}
+/* Zone contenu principale */
+.id-card-body {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+  padding: 9px 12px 8px 8px;
+  position: relative; z-index: 1;
+}
+/* En-tête */
+.id-card-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 7px;
+  padding-bottom: 6px;
+  border-bottom: 1.5px solid #0f3a8a;
+}
+.id-card-header-left { display: flex; align-items: center; gap: 7px; }
+.id-card-emblem {
+  width: 28px; height: 28px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.id-card-emblem img { width: 100%; height: 100%; object-fit: contain; }
+.id-card-titles { display: flex; flex-direction: column; gap: 1px; }
+.id-card-country-name {
+  font-size: 0.62rem; font-weight: 900; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #0f3a8a; line-height: 1.2;
+}
+.id-card-card-type {
+  font-size: 0.48rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #444; font-weight: 600;
+}
+.id-card-card-type-en {
+  font-size: 0.42rem; letter-spacing: 0.06em; color: #888; font-style: italic;
+}
+/* Flag EU-style badge */
+.id-card-flag-badge {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: #003399; display: flex; align-items: center; justify-content: center;
+  font-size: 0.55rem; font-weight: 900; color: #f5c900; letter-spacing: 0.02em;
+  border: 1.5px solid #f5c900; flex-shrink: 0;
+}
+/* Champs */
+.id-card-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 10px;
+  flex: 1;
+}
+.id-card-field {
+  display: flex; flex-direction: column; gap: 1px;
+  min-width: 0;
+}
+.id-card-field.full { grid-column: 1 / -1; }
+.id-field-label {
+  font-size: 0.46rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #0f3a8a; font-weight: 700; line-height: 1;
+}
+.id-field-label-en {
+  font-size: 0.4rem; color: #888; font-style: italic; letter-spacing: 0.04em;
+}
+.id-field-val {
+  font-size: 0.76rem; font-weight: 700; color: #1a1a2e;
+  line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.id-field-val.small { font-size: 0.65rem; }
+/* Bas de carte — N° document + expiration */
+.id-card-bottom {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-top: 6px; padding-top: 5px;
+  border-top: 1px solid rgba(15,58,138,0.2);
+  gap: 8px;
+}
+.id-card-docnum { display: flex; flex-direction: column; gap: 1px; }
+.id-card-docnum-label {
+  font-size: 0.44rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #0f3a8a; font-weight: 700;
+}
+.id-card-docnum-val {
+  font-size: 0.9rem; font-weight: 900; letter-spacing: 0.12em; color: #0f3a8a;
+  font-family: 'Courier New', monospace;
+}
+.id-card-expiry { display: flex; flex-direction: column; gap: 1px; text-align: right; }
+.id-card-expiry-label {
+  font-size: 0.44rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #0f3a8a; font-weight: 700;
+}
+.id-card-expiry-val {
+  font-size: 0.78rem; font-weight: 700; font-family: 'Courier New', monospace;
+}
+/* MRZ (bas de carte) */
+.id-card-mrz-strip {
+  background: rgba(255,255,255,0.6);
+  border-top: 1px solid rgba(0,0,0,0.08);
+  padding: 3px 10px;
+  font-size: 0.45rem; color: rgba(0,0,0,0.35);
+  letter-spacing: 0.06em; font-family: 'Courier New', monospace;
+  white-space: nowrap; overflow: hidden;
+  position: absolute; bottom: 0; left: 10px; right: 0;
+  z-index: 2;
+}
+/* Statut inactif overlay */
+.id-card-inactive-overlay {
+  position: absolute; inset: 0; z-index: 10;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent, transparent 8px,
+    rgba(220,38,38,0.06) 8px, rgba(220,38,38,0.06) 10px
+  );
+  pointer-events: none;
+  border: 2px solid rgba(220,38,38,0.4);
+  border-radius: 10px;
+}
+
+/* ===== CITIZENS STATUS & EXPIRATION ===== */
+.citizen-card-wrap { margin-bottom: 2.5rem; }
+.citizen-card-actions {
+  display: flex; gap: 0.5rem; flex-wrap: wrap;
+  margin-top: 0.65rem;
+}
+.badge-actif   { display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:2px;background:#dcfce7;color:#16a34a; }
+.badge-inactif { display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:2px;background:#fee2e2;color:#dc2626; }
+.badge-expiring { display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:2px;background:#fef9c3;color:#b45309; }
+.badge-expired  { display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:2px;background:#fee2e2;color:#dc2626; }
+.badge-renewal  { display:inline-flex;align-items:center;gap:4px;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:2px;background:#ede9fe;color:#7c3aed; }
+</style>
+</head>
+<body>
+
+<nav class="navbar" id="main-nav">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <img src="../assets/drapeau.png" alt="Drapeau de Kerdoré" style="height:32px;width:auto;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,0.2);" />
+      <div class="nav-logo-text">
+        <span class="nav-logo-title">KERDORÉ</span>
+        <span class="nav-logo-sub">Administration</span>
+      </div>
+    </a>
+    <div class="nav-divider"></div>
+    <span id="user-email" style="color:var(--text-light);font-size:0.82rem;margin-left:auto;margin-right:1.2rem;"></span>
+    <a href="../index.html" style="color:var(--text-light);font-size:0.78rem;font-weight:600;text-decoration:none;margin-right:1rem;">Vue publique →</a>
+    <button onclick="doLogout()" class="btn btn-ghost" style="font-size:0.75rem;padding:0.38rem 0.9rem;">Déconnexion</button>
+  </div>
+</nav>
+
+<div class="admin-wrap">
+  <aside class="admin-sidebar">
+    <p class="sidebar-label" style="margin-top:1rem;">Sections</p>
+    <a class="sidebar-item active" data-section="home"         onclick="showSection('home')">🏠 Accueil</a>
+    <a class="sidebar-item"        data-section="stats"        onclick="showSection('stats')">📊 Statistiques</a>
+    <a class="sidebar-item"        data-section="gouvernement" onclick="showSection('gouvernement')">🏛️ Gouvernement</a>
+    <a class="sidebar-item"        data-section="histoire"     onclick="showSection('histoire')">📖 Histoire</a>
+    <a class="sidebar-item"        data-section="constitution" onclick="showSection('constitution')">📜 Constitution</a>
+    <a class="sidebar-item"        href="code-penal.html">⚖️ Code pénal</a>
+    <a class="sidebar-item"        data-section="diplomatie"   onclick="showSection('diplomatie')">🌍 Diplomatie</a>
+    <a class="sidebar-item"        data-section="actualites"   onclick="showSection('actualites')">📰 Actualités</a>
+    <a class="sidebar-item"        data-section="citoyennete"  onclick="showSection('citoyennete')">👥 Citoyenneté</a>
+    <a class="sidebar-item"        data-section="votes"        onclick="showSection('votes')">🗳️ Votes & Référendums</a>
+    <div class="sidebar-divider"></div>
+    <p class="sidebar-label">Messagerie</p>
+    <a class="sidebar-item" data-section="messages" onclick="showSection('messages')">✉️ Messages <span id="badge-msg" style="display:none;background:var(--red);color:#fff;font-size:0.65rem;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:4px;"></span></a>
+    <a class="sidebar-item" data-section="demandes-cit" onclick="showSection('demandes-cit')">🎖️ Demandes Citoyenneté <span id="badge-cit" style="display:none;background:var(--red);color:#fff;font-size:0.65rem;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:4px;"></span></a>
+    <a class="sidebar-item" data-section="citizens" onclick="showSection('citizens')">🪪 Citoyens</a>
+    <div class="sidebar-divider"></div>
+    <p class="sidebar-label">Compte</p>
+    <a class="sidebar-item" data-section="account" onclick="showSection('account')">⚙️ Paramètres</a>
+  </aside>
+
+  <main class="admin-main">
+    <div id="global-alert" style="display:none;" class="alert"></div>
+
+    <!-- ===== ACCUEIL ===== -->
+    <div class="a-section active" id="s-home">
+      <h2 class="a-title">Accueil</h2>
+      <p class="a-desc">Modifier le contenu de la page d'accueil du portail.</p>
+      <div class="form-group"><label class="form-label">Nom officiel de la Démocratie</label><input class="form-input" id="h-title" type="text"/></div>
+      <div class="form-group"><label class="form-label">Sous-titre / Description courte</label><input class="form-input" id="h-subtitle" type="text"/></div>
+      <div class="form-group"><label class="form-label">Devise officielle</label><input class="form-input" id="h-motto" type="text"/></div>
+      <div class="form-group"><label class="form-label">Paragraphe de présentation</label><textarea class="form-textarea" id="h-description"></textarea></div>
+      <div class="form-group"><label class="form-label">Texte du ticker (séparer par ·)</label><input class="form-input" id="h-ticker" type="text" placeholder="Actualité 1 · Actualité 2"/></div>
+      <button class="btn btn-gold" onclick="saveSection('home')">Enregistrer l'accueil</button>
+    </div>
+
+    <!-- ===== STATISTIQUES ===== -->
+    <div class="a-section" id="s-stats">
+      <h2 class="a-title">Statistiques nationales</h2>
+      <p class="a-desc">Ces chiffres s'affichent sur la page d'accueil du portail.</p>
+
+      <div class="form-group" style="max-width:420px;">
+        <label class="form-label">Population (habitants)</label>
+        <div style="display:flex;gap:0.75rem;align-items:center;">
+          <input class="form-input" id="st-habitants" type="number" min="0" placeholder="ex: 24" style="flex:1;"/>
+          <button class="btn btn-gold" onclick="addOneHabitant()" style="white-space:nowrap;padding:0.55rem 1.1rem;font-size:0.9rem;">+1 habitant</button>
+        </div>
+        <p style="font-size:0.75rem;color:var(--gray);margin-top:0.4rem;">Cliquez « +1 habitant » pour enregistrer immédiatement l'ajout d'un nouveau citoyen.</p>
+      </div>
+
+      <div class="form-group" style="max-width:420px;">
+        <label class="form-label">PIB</label>
+        <input class="form-input" id="st-pib" type="text" placeholder="ex: 4 200 € / 12 000 $"/>
+        <p style="font-size:0.75rem;color:var(--gray);margin-top:0.4rem;">Saisissez la valeur avec l'unité (€, $, etc.).</p>
+      </div>
+
+      <div class="form-group" style="max-width:420px;">
+        <label class="form-label">Superficie</label>
+        <input class="form-input" id="st-superficie" type="text" placeholder="ex: 12 km²"/>
+        <p style="font-size:0.75rem;color:var(--gray);margin-top:0.4rem;">Indiquez l'unité (km², m², etc.).</p>
+      </div>
+
+      <button class="btn btn-gold" onclick="saveSection('stats')">Enregistrer les statistiques</button>
+    </div>
+
+    <!-- ===== GOUVERNEMENT ===== -->
+    <div class="a-section" id="s-gouvernement">
+      <h2 class="a-title">Gouvernement</h2>
+      <p class="a-desc">Chef de l'État et Conseil des Ministres — vous pouvez ajouter des photos (image → base64).</p>
+
+      <h3 style="font-size:0.82rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem;color:var(--blue);">Chef de l'État</h3>
+      <div class="form-grid-2">
+        <div class="form-group"><label class="form-label">Titre</label><input class="form-input" id="g-chef_titre" type="text" placeholder="ex: Prince de Kerdoré"/></div>
+        <div class="form-group"><label class="form-label">Nom</label><input class="form-input" id="g-chef_nom" type="text"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Biographie officielle</label><textarea class="form-textarea" id="g-chef_bio"></textarea></div>
+
+      <!-- Photo chef d'état -->
+      <div class="form-group">
+        <label class="form-label">Photo du Chef de l'État</label>
+        <div class="img-upload-area" id="chef-upload-area" onclick="document.getElementById('chef-photo-input').click()">
+          <span class="img-upload-btn">📷 Choisir une photo</span>
+          <span class="img-upload-label">Cliquez pour sélectionner (JPG, PNG, WebP)</span>
+          <img id="chef-photo-preview" class="img-preview-round" style="display:none;" alt="Aperçu"/>
+        </div>
+        <input type="hidden" id="g-chef_photo"/>
+        <input type="file" id="chef-photo-input" accept="image/*" style="display:none" onchange="handleImageUpload('chef-photo-input','chef-photo-preview','g-chef_photo','chef-upload-area')"/>
+        <button type="button" class="img-clear-btn" style="margin-top:0.4rem;" onclick="clearImage('chef-photo-preview','g-chef_photo','chef-upload-area')">✕ Supprimer la photo</button>
+      </div>
+
+      <div class="form-group"><label class="form-label">Description du Conseil National</label><textarea class="form-textarea" id="g-parlement" style="min-height:80px;"></textarea></div>
+
+      <h3 style="font-size:0.82rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin:2rem 0 1rem;color:var(--blue);">Conseil des Ministres</h3>
+      <div id="ministres-container"></div>
+      <button class="btn-add" onclick="addMinistre()">+ Ajouter un ministre</button>
+      <br><br>
+
+      <div style="border-top:2px solid var(--border);margin:2rem 0 1.5rem;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+        <h3 style="font-size:0.82rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--blue);margin:0;">Groupes personnalisés</h3>
+        <button class="btn-add" style="margin:0;" onclick="addGroupe()">+ Nouveau groupe</button>
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-light);margin-bottom:1.2rem;">Créez librement des catégories (ex: Conseil de Sécurité, Haut Commandement…) avec leurs membres.</p>
+      <div id="groupes-container"></div>
+
+      <button class="btn btn-gold" onclick="saveSection('gouvernement')">Enregistrer le gouvernement</button>
+    </div>
+
+    <!-- ===== HISTOIRE ===== -->
+    <div class="a-section" id="s-histoire">
+      <h2 class="a-title">Histoire</h2>
+      <p class="a-desc">Introduction et chronologie nationale.</p>
+      <div class="form-group"><label class="form-label">Paragraphe d'introduction</label><textarea class="form-textarea" id="hist-intro"></textarea></div>
+      <h3 style="font-size:0.82rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin:2rem 0 1rem;color:var(--blue);">Événements</h3>
+      <div id="timeline-container"></div>
+      <button class="btn-add" onclick="addTimelineEvent()">+ Ajouter un événement</button>
+      <br><br>
+      <button class="btn btn-gold" onclick="saveSection('histoire')">Enregistrer l'histoire</button>
+    </div>
+
+    <!-- ===== CONSTITUTION ===== -->
+    <div class="a-section" id="s-constitution">
+      <h2 class="a-title">Constitution</h2>
+      <p class="a-desc">Préambule et articles de la loi fondamentale.</p>
+      <div class="form-group"><label class="form-label">Préambule</label><textarea class="form-textarea" id="con-preambule" style="min-height:180px;"></textarea></div>
+      <h3 style="font-size:0.82rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin:2rem 0 1rem;color:var(--blue);">Articles</h3>
+      <div id="articles-container"></div>
+      <button class="btn-add" onclick="addArticle()">+ Ajouter un article</button>
+      <br><br>
+      <button class="btn btn-gold" onclick="saveSection('constitution')">Enregistrer la constitution</button>
+    </div>
+
+    <!-- ===== DIPLOMATIE ===== -->
+    <div class="a-section" id="s-diplomatie">
+      <h2 class="a-title">Diplomatie</h2>
+      <p class="a-desc">Relations extérieures et pays reconnus.</p>
+      <div class="form-group"><label class="form-label">Texte d'introduction</label><textarea class="form-textarea" id="dip-intro" style="min-height:80px;"></textarea></div>
+      <h3 style="font-size:0.82rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin:2rem 0 1rem;color:var(--blue);">Nations & Relations</h3>
+      <div id="pays-container"></div>
+      <button class="btn-add" onclick="addPays()">+ Ajouter une nation</button>
+      <br><br>
+      <button class="btn btn-gold" onclick="saveSection('diplomatie')">Enregistrer la diplomatie</button>
+    </div>
+
+    <!-- ===== ACTUALITÉS ===== -->
+    <div class="a-section" id="s-actualites">
+      <h2 class="a-title">Actualités & Communiqués</h2>
+      <p class="a-desc">Gérez les articles officiels — vous pouvez ajouter une image de bannière à chaque article.</p>
+      <div id="news-container"></div>
+      <button class="btn-add" onclick="addArticle2()">+ Publier un nouvel article</button>
+      <br><br>
+      <button class="btn btn-gold" onclick="saveSection('actualites')">Enregistrer les actualités</button>
+    </div>
+
+    <!-- ===== CITOYENNETÉ ===== -->
+    <div class="a-section" id="s-citoyennete">
+      <h2 class="a-title">Citoyenneté</h2>
+      <p class="a-desc">Informations et procédure de naturalisation.</p>
+      <div class="form-group"><label class="form-label">Introduction</label><textarea class="form-textarea" id="cit-intro"></textarea></div>
+      <div class="form-group"><label class="form-label">Conditions d'admission</label><textarea class="form-textarea" id="cit-conditions"></textarea></div>
+      <div class="form-group"><label class="form-label">Procédure (une étape par ligne)</label><textarea class="form-textarea" id="cit-procedure" style="min-height:160px;" placeholder="Étape 1&#10;Étape 2&#10;Étape 3"></textarea></div>
+      <button class="btn btn-gold" onclick="saveSection('citoyennete')">Enregistrer la citoyenneté</button>
+    </div>
+
+    <!-- ===== MESSAGES CONTACT ===== -->
+    <div class="a-section" id="s-messages">
+      <h2 class="a-title">Messages reçus</h2>
+      <p class="a-desc">Messages envoyés via le formulaire de contact du portail.</p>
+      <div id="messages-list"><p style="color:var(--gray);">Chargement…</p></div>
+    </div>
+
+    <!-- ===== DEMANDES CITOYENNETÉ ===== -->
+    <div class="a-section" id="s-demandes-cit">
+      <h2 class="a-title">Demandes de Citoyenneté</h2>
+      <p class="a-desc">Dossiers de candidature soumis par les postulants. Acceptez ou refusez chaque demande.</p>
+      <div id="demandes-list"><p style="color:var(--gray);">Chargement…</p></div>
+    </div>
+
+    <!-- ===== CITOYENS ===== -->
+    <div class="a-section" id="s-citizens">
+      <h2 class="a-title">Registre des Citoyens</h2>
+      <p class="a-desc">Liste officielle des citoyens de la Démocratie de Kerdoré.</p>
+      <div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;">
+        <input class="form-input" type="search" id="citizen-search" placeholder="🔍  Rechercher par nom, prénom ou N° identifiant…" style="flex:1;min-width:220px;max-width:420px;" oninput="filterCitizens()"/>
+        <select class="form-input" id="citizen-filter-status" style="width:160px;" onchange="filterCitizens()">
+          <option value="">Tous les statuts</option>
+          <option value="actif">Actifs</option>
+          <option value="inactif">Inactifs</option>
+        </select>
+      </div>
+      <div id="citizens-count" style="font-size:0.82rem;color:var(--text-light);margin-bottom:1rem;"></div>
+      <div id="citizens-list"><p style="color:var(--gray);">Chargement…</p></div>
+    </div>
+
+    <!-- ===== VOTES & RÉFÉRENDUMS ===== -->
+    <div class="a-section" id="s-votes">
+      <h2 class="a-title">Votes & Référendums</h2>
+      <p class="a-desc">Gérez les élections nationales de Kerdoré.</p>
+      <div id="admin-election-chef_supreme"></div>
+      <div id="admin-election-deputes"></div>
+    </div>
+
+    <!-- ===== COMPTE ===== -->
+    <div class="a-section" id="s-account">
+      <h2 class="a-title">Paramètres du Compte</h2>
+      <p class="a-desc">Gérez votre accès administrateur.</p>
+      <div style="background:var(--white);border:1px solid var(--border);padding:1.5rem;margin-bottom:1.5rem;border-radius:2px;">
+        <p style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.4rem;color:var(--text-light);">Connecté en tant que</p>
+        <p id="account-email" style="font-size:1.05rem;color:var(--black);font-weight:600;"></p>
+      </div>
+      <h3 style="font-size:0.82rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:1rem;color:var(--blue);">Changer le mot de passe</h3>
+      <div class="form-grid-2">
+        <div class="form-group"><label class="form-label">Nouveau mot de passe</label><input class="form-input" type="password" id="new-pass"/></div>
+        <div class="form-group"><label class="form-label">Confirmer le mot de passe</label><input class="form-input" type="password" id="confirm-pass"/></div>
+      </div>
+      <button class="btn btn-red" onclick="changePassword()">Mettre à jour le mot de passe</button>
+    </div>
+
+  </main>
+</div>
+
+<div class="save-bar">
+  <span class="save-status" id="save-status">Prêt</span>
+  <span style="color:var(--text-light);font-size:0.72rem;font-weight:700;letter-spacing:0.1em;">PORTAIL ADMIN · KERDORÉ</span>
+</div>
+
+<div class="spinner-overlay" id="spinner"><div class="spinner"></div></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/content.js"></script>
+<script>
+
+// ============================================================
+//  AUTH GUARD — Admins uniquement (users/{uid}/admin === true)
+// ============================================================
+auth.onAuthStateChanged(async user => {
+  if (!user) { window.location.href = 'login.html'; return; }
+
+  try {
+    const userRef = db.ref('users/' + user.uid);
+    const snap = await userRef.once('value');
+
+    if (!snap.exists()) {
+      // Utilisateur pas encore dans la base → on le crée (sans droits admin)
+      await userRef.set({
+        email:     user.email,
+        createdAt: new Date().toISOString(),
+        admin:     false
+      });
+      await auth.signOut();
+      window.location.href = 'login.html?error=unauthorized';
+      return;
+    }
+
+    const data = snap.val();
+    if (data.admin !== true) {
+      // Existe mais pas admin
+      await auth.signOut();
+      window.location.href = 'login.html?error=unauthorized';
+      return;
+    }
+
+  } catch (e) {
+    console.error('[Kerdoré] Impossible de vérifier les droits admin :', e);
+    await auth.signOut();
+    window.location.href = 'login.html?error=unauthorized';
+    return;
+  }
+
+  document.getElementById('user-email').textContent  = user.email;
+  document.getElementById('account-email').textContent = user.email;
+  loadAllSections();
+});
+function doLogout() { auth.signOut().then(() => window.location.href = 'login.html'); }
+
+// ============================================================
+//  NAVIGATION
+// ============================================================
+function showSection(name) {
+  document.querySelectorAll('.a-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-' + name).classList.add('active');
+  document.querySelector(`[data-section="${name}"]`)?.classList.add('active');
+}
+
+// ============================================================
+//  IMAGE UPLOAD HELPERS (base64)
+// ============================================================
+function handleImageUpload(inputId, previewId, hiddenId, areaId) {
+  const input = document.getElementById(inputId);
+  const file  = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    alert('Image trop lourde (max 5 Mo). Compressez-la avant de l\'importer.');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const b64 = e.target.result;
+    document.getElementById(hiddenId).value  = b64;
+    const prev = document.getElementById(previewId);
+    prev.src   = b64;
+    prev.style.display = 'block';
+    const area = document.getElementById(areaId);
+    if (area) area.style.borderColor = 'var(--blue)';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImage(previewId, hiddenId, areaId) {
+  document.getElementById(hiddenId).value = '';
+  const prev = document.getElementById(previewId);
+  prev.src = ''; prev.style.display = 'none';
+  const area = document.getElementById(areaId);
+  if (area) area.style.borderColor = '';
+}
+
+// ============================================================
+//  LOAD ALL
+// ============================================================
+async function loadAllSections() {
+  try {
+    const [home, gov, hist, con, dip, actu, cit, stats] = await Promise.all([
+      loadContent('home'), loadContent('gouvernement'), loadContent('histoire'),
+      loadContent('constitution'), loadContent('diplomatie'),
+      loadContent('actualites'), loadContent('citoyennete'), loadContent('stats')
+    ]);
+    fillHome(home); fillGouvernement(gov); fillHistoire(hist);
+    fillConstitution(con); fillDiplomatie(dip); fillActualites(actu); fillCitoyennete(cit); fillStats(stats);
+    loadVotes();
+    setStatus('Données chargées', 'ok');
+  } catch(e) { setStatus('Erreur de chargement', 'err'); }
+}
+
+// ============================================================
+//  FILL FUNCTIONS
+// ============================================================
+function fillHome(d) {
+  setVal('h-title', d.title); setVal('h-subtitle', d.subtitle);
+  setVal('h-motto', d.motto); setVal('h-description', d.description);
+  setVal('h-ticker', d.ticker);
+}
+function fillGouvernement(d) {
+  setVal('g-chef_titre', d.chef_titre); setVal('g-chef_nom', d.chef_nom);
+  setVal('g-chef_bio', d.chef_bio); setVal('g-parlement', d.parlement);
+  // Photo chef
+  if (d.chef_photo) {
+    document.getElementById('g-chef_photo').value = d.chef_photo;
+    const prev = document.getElementById('chef-photo-preview');
+    prev.src = d.chef_photo; prev.style.display = 'block';
+  }
+  const container = document.getElementById('ministres-container');
+  container.innerHTML = '';
+  (d.ministres || []).forEach(m => addMinistre(m));
+  // Groupes personnalisés
+  const gc = document.getElementById('groupes-container');
+  gc.innerHTML = '';
+  (d.groupes || []).forEach(g => addGroupe(g));
+}
+function fillHistoire(d) {
+  setVal('hist-intro', d.intro);
+  const container = document.getElementById('timeline-container');
+  container.innerHTML = '';
+  (d.timeline || []).forEach(e => addTimelineEvent(e));
+}
+function fillConstitution(d) {
+  setVal('con-preambule', d.preambule);
+  const container = document.getElementById('articles-container');
+  container.innerHTML = '';
+  (d.articles || []).forEach(a => addArticle(a));
+}
+function fillDiplomatie(d) {
+  setVal('dip-intro', d.intro);
+  const container = document.getElementById('pays-container');
+  container.innerHTML = '';
+  (d.pays || []).forEach(p => addPays(p));
+}
+function fillActualites(d) {
+  const container = document.getElementById('news-container');
+  container.innerHTML = '';
+  (d.articles || []).forEach(a => addArticle2(a));
+}
+function fillCitoyennete(d) {
+  setVal('cit-intro', d.intro); setVal('cit-conditions', d.conditions);
+  setVal('cit-procedure', d.procedure);
+}
+function fillStats(d) {
+  setVal('st-habitants',  d.habitants  != null ? d.habitants  : 0);
+  setVal('st-pib',        d.pib        || '');
+  setVal('st-superficie', d.superficie || '');
+}
+
+// ============================================================
+//  SAVE FUNCTIONS
+// ============================================================
+async function saveSection(section) {
+  setStatus('Enregistrement…'); showSpinner(true);
+  try {
+    let data = {};
+    if (section === 'home') {
+      data = { title: getVal('h-title'), subtitle: getVal('h-subtitle'), motto: getVal('h-motto'), description: getVal('h-description'), ticker: getVal('h-ticker') };
+    } else if (section === 'gouvernement') {
+      data = {
+        chef_titre: getVal('g-chef_titre'), chef_nom: getVal('g-chef_nom'),
+        chef_bio: getVal('g-chef_bio'), parlement: getVal('g-parlement'),
+        chef_photo: getVal('g-chef_photo'),
+        ministres: collectItems('ministres-container', ['nom', 'portefeuille', 'photo']),
+        groupes: collectGroupes()
+      };
+    } else if (section === 'histoire') {
+      data = { intro: getVal('hist-intro'), timeline: collectItems('timeline-container', ['annee','titre','desc']) };
+    } else if (section === 'constitution') {
+      data = { preambule: getVal('con-preambule'), articles: collectItems('articles-container', ['num','titre','texte']) };
+    } else if (section === 'diplomatie') {
+      data = { intro: getVal('dip-intro'), pays: collectItems('pays-container', ['nom','statut','notes']) };
+    } else if (section === 'actualites') {
+      data = { articles: collectItems('news-container', ['titre','date','auteur','contenu','banniere']) };
+    } else if (section === 'citoyennete') {
+      data = { intro: getVal('cit-intro'), conditions: getVal('cit-conditions'), procedure: getVal('cit-procedure') };
+    } else if (section === 'stats') {
+      data = { habitants: parseInt(getVal('st-habitants')) || 0, pib: getVal('st-pib'), superficie: getVal('st-superficie') };
+    }
+    await db.ref(`content/${section}`).set(data);
+    setStatus('✓ Enregistré avec succès', 'ok');
+    showAlert('Modifications enregistrées avec succès.', 'success');
+  } catch(e) {
+    setStatus('✗ Erreur d\'enregistrement', 'err');
+    showAlert('Erreur : ' + e.message, 'error');
+  } finally { showSpinner(false); }
+}
+
+// ============================================================
+//  DYNAMIC ITEM BUILDERS
+// ============================================================
+// +1 habitant — incrémente directement dans Firebase et met à jour le champ
+async function addOneHabitant() {
+  try {
+    const snap = await db.ref('content/stats/habitants').once('value');
+    const current = snap.val() || 0;
+    const next = current + 1;
+    await db.ref('content/stats/habitants').set(next);
+    setVal('st-habitants', next);
+    showAlert(`Population mise à jour : ${next.toLocaleString('fr-FR')} habitant${next > 1 ? 's' : ''}`, 'success');
+  } catch(e) {
+    showAlert('Erreur : ' + e.message, 'error');
+  }
+}
+
+let _uid = 0;
+function uid() { return 'img_' + (++_uid) + '_' + Date.now(); }
+
+function addMinistre(data = {}) {
+  const c = document.getElementById('ministres-container');
+  const div = document.createElement('div');
+  div.className = 'item-card';
+  const inputId   = uid();
+  const previewId = uid();
+  const hiddenId  = uid();
+  const areaId    = uid();
+  div.innerHTML = `
+    <div class="item-card-head">
+      <span class="item-card-title">Ministre</span>
+      <button class="btn-del" onclick="this.closest('.item-card').remove()">Supprimer</button>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group"><label class="form-label">Nom</label><input class="form-input" data-key="nom" value="${esc(data.nom)}"/></div>
+      <div class="form-group"><label class="form-label">Portefeuille / Titre</label><input class="form-input" data-key="portefeuille" value="${esc(data.portefeuille)}"/></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Photo du ministre</label>
+      <div class="img-upload-area" id="${areaId}" onclick="document.getElementById('${inputId}').click()" style="padding:0.8rem;">
+        <span class="img-upload-btn">📷 Choisir une photo</span>
+        <span class="img-upload-label">JPG, PNG, WebP — max 5 Mo</span>
+        <img id="${previewId}" class="img-preview-round" style="display:${data.photo?'block':'none'};" src="${data.photo||''}" alt="Aperçu"/>
+      </div>
+      <input type="hidden" id="${hiddenId}" data-key="photo" value="${esc(data.photo)}"/>
+      <input type="file" id="${inputId}" accept="image/*" style="display:none" onchange="handleImageUpload('${inputId}','${previewId}','${hiddenId}','${areaId}')"/>
+      <button type="button" class="img-clear-btn" style="margin-top:0.3rem;" onclick="clearImage('${previewId}','${hiddenId}','${areaId}')">✕ Supprimer</button>
+    </div>`;
+  c.appendChild(div);
+}
+
+// ============================================================
+//  VOTES & RÉFÉRENDUMS — ADMIN
+// ============================================================
+const VOTE_ELECTIONS = {
+  chef_supreme: { icon: '👑', label: 'Chef Suprême' },
+  deputes:      { icon: '🏛️', label: 'Députés' }
+};
+const VOTE_STATUS_META = {
+  idle:         { label: 'Inactif',               next: 'candidatures',  nextLabel: 'Ouvrir les candidatures' },
+  candidatures: { label: 'Candidatures ouvertes', next: 'vote_t1',       nextLabel: 'Lancer le vote (Tour 1)' },
+  vote_t1:      { label: 'Vote Tour 1 en cours',  next: 'selection_t2',  nextLabel: 'Clôturer Tour 1 → sélectionner finalistes' },
+  selection_t2: { label: 'Sélection Tour 2',      next: null,            nextLabel: null },
+  vote_t2:      { label: 'Vote Tour 2 en cours',  next: 'closed',        nextLabel: 'Clôturer le Tour 2' },
+  closed:       { label: 'Clôturé',               next: null,            nextLabel: null }
+};
+
+async function loadVotes() {
+  for (const type of ['chef_supreme', 'deputes']) {
+    await renderAdminElection(type);
+  }
+}
+
+async function renderAdminElection(type) {
+  const container = document.getElementById('admin-election-' + type);
+  const meta = VOTE_ELECTIONS[type];
+
+  const [configSnap, candidatsSnap, v1Snap, v2Snap] = await Promise.all([
+    db.ref(`elections/${type}/config`).once('value'),
+    db.ref(`elections/${type}/candidats`).once('value'),
+    db.ref(`elections/${type}/votes_t1`).once('value'),
+    db.ref(`elections/${type}/votes_t2`).once('value')
+  ]);
+
+  const config    = configSnap.val()    || { status: 'idle', titre: meta.label };
+  const candidats = candidatsSnap.val() || {};
+  const votes_t1  = v1Snap.val()        || {};
+  const votes_t2  = v2Snap.val()        || {};
+  const status    = config.status || 'idle';
+  const smeta     = VOTE_STATUS_META[status];
+
+  // Count votes per candidate
+  function countVotes(votesObj) {
+    const counts = {};
+    Object.values(votesObj).forEach(id => { counts[id] = (counts[id] || 0) + 1; });
+    return counts;
+  }
+  const counts1 = countVotes(votes_t1);
+  const counts2 = countVotes(votes_t2);
+  const totalV1 = Object.keys(votes_t1).length;
+  const totalV2 = Object.keys(votes_t2).length;
+
+  const candidatsList = Object.entries(candidats);
+
+  let html = `
+  <div class="item-card" style="margin-bottom:1.5rem;">
+    <div class="item-card-head">
+      <span class="item-card-title">${meta.icon} ${meta.label}</span>
+      <span style="font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;background:var(--blue-light);color:var(--blue);border-radius:2px;">${smeta.label}</span>
+    </div>
+
+    <!-- Config titre & description -->
+    <div class="form-grid-2">
+      <div class="form-group">
+        <label class="form-label">Titre de l'élection</label>
+        <input class="form-input" id="ve-titre-${type}" value="${esc(config.titre||meta.label)}"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description (optionnel)</label>
+        <input class="form-input" id="ve-desc-${type}" value="${esc(config.description||'')}"/>
+      </div>
+    </div>
+    <button class="btn btn-ghost" style="font-size:0.78rem;padding:0.3rem 0.8rem;margin-bottom:1rem;"
+      onclick="saveElectionConfig('${type}')">Enregistrer le titre</button>
+
+    <!-- Actions de statut -->
+    <div style="display:flex;flex-wrap:wrap;gap:0.6rem;margin-bottom:1.2rem;">`;
+
+  if (smeta.nextLabel) {
+    html += `<button class="btn btn-blue" style="font-size:0.8rem;"
+      onclick="setElectionStatus('${type}','${smeta.next}')">${smeta.nextLabel}</button>`;
+  }
+
+  if (status === 'selection_t2') {
+    html += `<button class="btn btn-blue" style="font-size:0.8rem;"
+      onclick="launchTour2('${type}')">🚀 Lancer le Tour 2 avec les candidats sélectionnés</button>`;
+  }
+
+  if (status !== 'idle') {
+    html += `<button class="btn btn-red" style="font-size:0.8rem;"
+      onclick="resetElection('${type}')">⚠ Réinitialiser l'élection</button>`;
+  }
+  html += `</div>`;
+
+  // Candidates list with votes
+  if (candidatsList.length > 0) {
+    html += `<p style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-bottom:0.7rem;">
+      Candidats (${candidatsList.length}) ${totalV1 > 0 ? `— ${totalV1} vote(s) Tour 1` : ''} ${totalV2 > 0 ? `— ${totalV2} vote(s) Tour 2` : ''}
+    </p>`;
+
+    candidatsList.forEach(([id, c]) => {
+      const v1 = counts1[id] || 0;
+      const v2 = counts2[id] || 0;
+      const pct1 = totalV1 > 0 ? Math.round(v1/totalV1*100) : 0;
+      const pct2 = totalV2 > 0 ? Math.round(v2/totalV2*100) : 0;
+      const isFinalist = c.selected_t2 ? true : false;
+
+      html += `<div style="display:flex;align-items:center;gap:0.8rem;padding:0.65rem 0.9rem;
+        border:1px solid var(--border);margin-bottom:0.5rem;background:${isFinalist?'var(--blue-light)':'var(--white)'};">
+        <div style="width:38px;height:38px;border-radius:3px;flex-shrink:0;background:var(--blue-light);
+          display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;
+          color:var(--blue);overflow:hidden;">
+          ${c.photo ? `<img src="${c.photo}" style="width:100%;height:100%;object-fit:cover;" alt=""/>` : initiales(c.nom)}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <p style="margin:0;font-size:0.84rem;font-weight:700;">${esc(c.nom)}</p>
+          ${c.presentation ? `<p style="margin:0;font-size:0.75rem;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(c.presentation)}</p>` : ''}
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          ${totalV1 > 0 ? `<span style="font-size:0.78rem;font-weight:700;color:var(--blue);">${v1} vote(s) T1 (${pct1}%)</span><br/>` : ''}
+          ${totalV2 > 0 ? `<span style="font-size:0.78rem;font-weight:700;color:var(--blue-dark);">${v2} vote(s) T2 (${pct2}%)</span><br/>` : ''}
+          ${status === 'selection_t2' ? `
+          <label style="font-size:0.75rem;cursor:pointer;display:flex;align-items:center;gap:0.3rem;justify-content:flex-end;">
+            <input type="checkbox" id="finalist-${type}-${id}" ${isFinalist?'checked':''}
+              onchange="toggleFinalist('${type}','${id}',this.checked)"/>
+            Finaliste T2
+          </label>` : (isFinalist ? `<span style="font-size:0.7rem;color:var(--blue);font-weight:700;">✓ Finaliste</span>` : '')}
+        </div>
+      </div>`;
+    });
+  } else {
+    html += `<p style="font-size:0.85rem;color:var(--text-light);">Aucun candidat inscrit.</p>`;
+  }
+
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+async function saveElectionConfig(type) {
+  const titre = document.getElementById(`ve-titre-${type}`).value.trim();
+  const desc  = document.getElementById(`ve-desc-${type}`).value.trim();
+  await db.ref(`elections/${type}/config`).update({ titre, description: desc });
+  showAlert('Configuration enregistrée.', 'ok');
+}
+
+async function setElectionStatus(type, newStatus) {
+  const labels = { candidatures:'candidatures', vote_t1:'Tour 1', selection_t2:'sélection Tour 2', vote_t2:'Tour 2', closed:'clôturée' };
+  if (!confirm(`Passer l'élection "${VOTE_ELECTIONS[type].label}" en : ${labels[newStatus] || newStatus} ?`)) return;
+  await db.ref(`elections/${type}/config/status`).set(newStatus);
+  await renderAdminElection(type);
+  showAlert(`Statut mis à jour : ${labels[newStatus] || newStatus}`, 'ok');
+}
+
+async function toggleCitizenStatus(citizenId, newStatus) {
+  const label = newStatus === 'inactif' ? 'désactiver' : 'réactiver';
+  if (!confirm(`Voulez-vous ${label} la carte de ce citoyen ?`)) return;
+  try {
+    await db.ref(`citizens/${citizenId}/statut`).set(newStatus);
+    // Update local cache
+    const idx = _allCitizens.findIndex(c => c.key === citizenId);
+    if (idx !== -1) _allCitizens[idx].statut = newStatus;
+    filterCitizens();
+    showAlert(`Statut mis à jour : ${newStatus}`, 'ok');
+  } catch(e) { showAlert('Erreur : ' + e.message, 'error'); }
+}
+
+async function sendRenewalRequest(citizenId, citizenName) {
+  if (!confirm(`Envoyer une demande de renouvellement à ${citizenName} ?`)) return;
+  try {
+    await db.ref(`citizens/${citizenId}/renewalRequested`).set(true);
+    const idx = _allCitizens.findIndex(c => c.key === citizenId);
+    if (idx !== -1) _allCitizens[idx].renewalRequested = true;
+    filterCitizens();
+    showAlert(`Demande de renouvellement envoyée à ${citizenName}.`, 'ok');
+  } catch(e) { showAlert('Erreur : ' + e.message, 'error'); }
+}
+
+async function clearRenewalRequest(citizenId) {
+  try {
+    await db.ref(`citizens/${citizenId}/renewalRequested`).remove();
+    const idx = _allCitizens.findIndex(c => c.key === citizenId);
+    if (idx !== -1) delete _allCitizens[idx].renewalRequested;
+    filterCitizens();
+    showAlert('Demande de renouvellement annulée.', 'ok');
+  } catch(e) { showAlert('Erreur : ' + e.message, 'error'); }
+}
+
+
+
+async function launchTour2(type) {
+  // Verify at least one finalist is selected
+  const snap = await db.ref(`elections/${type}/candidats`).once('value');
+  const candidats = snap.val() || {};
+  const finalists = Object.entries(candidats).filter(([,c]) => c.selected_t2);
+  if (finalists.length < 2) {
+    showAlert('Sélectionnez au moins 2 finalistes avant de lancer le Tour 2.', 'err'); return;
+  }
+  if (!confirm(`Lancer le Tour 2 avec ${finalists.length} finaliste(s) ?`)) return;
+  await db.ref(`elections/${type}/config/status`).set('vote_t2');
+  await renderAdminElection(type);
+  showAlert('Tour 2 lancé !', 'ok');
+}
+
+async function resetElection(type) {
+  if (!confirm(`⚠️ Réinitialiser complètement l'élection "${VOTE_ELECTIONS[type].label}" ?\nTous les candidats, votes et données seront supprimés.`)) return;
+  await db.ref(`elections/${type}`).remove();
+  await renderAdminElection(type);
+  showAlert('Élection réinitialisée.', 'ok');
+}
+
+// ============================================================
+//  GROUPES PERSONNALISÉS
+// ============================================================
+function addGroupe(data = {}) {
+  const gc = document.getElementById('groupes-container');
+  const groupDiv = document.createElement('div');
+  groupDiv.className = 'item-card';
+  groupDiv.style.cssText = 'border:2px solid var(--blue-light);margin-bottom:1.5rem;';
+  const membresId = 'membres_' + uid();
+  groupDiv.innerHTML = `
+    <div class="item-card-head" style="background:var(--blue-light);">
+      <div style="display:flex;align-items:center;gap:0.7rem;flex:1;">
+        <span style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--blue);white-space:nowrap;">Nom du groupe</span>
+        <input class="form-input" data-key="nom" value="${esc(data.nom)}" placeholder="ex: Conseil de Sécurité" style="flex:1;padding:0.35rem 0.6rem;font-size:0.85rem;"/>
+      </div>
+      <button class="btn-del" onclick="this.closest('.item-card').remove()" style="margin-left:0.8rem;">Supprimer le groupe</button>
+    </div>
+    <div style="padding:1rem 1.2rem 0.5rem;">
+      <div id="${membresId}"></div>
+      <button class="btn-add" onclick="addMembreGroupe('${membresId}')" style="margin-top:0.5rem;">+ Ajouter un membre</button>
+    </div>`;
+  gc.appendChild(groupDiv);
+  // Charger les membres existants
+  (data.membres || []).forEach(m => addMembreGroupe(membresId, m));
+}
+
+function addMembreGroupe(containerId, data = {}) {
+  const c = document.getElementById(containerId);
+  const div = document.createElement('div');
+  div.className = 'item-card';
+  div.style.cssText = 'margin-bottom:0.7rem;background:var(--white);';
+  const inputId   = uid();
+  const previewId = uid();
+  const hiddenId  = uid();
+  const areaId    = uid();
+  div.innerHTML = `
+    <div class="item-card-head">
+      <span class="item-card-title">Membre</span>
+      <button class="btn-del" onclick="this.closest('.item-card').remove()">Retirer</button>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group"><label class="form-label">Nom</label><input class="form-input" data-key="nom" value="${esc(data.nom)}"/></div>
+      <div class="form-group"><label class="form-label">Titre / Rôle</label><input class="form-input" data-key="titre" value="${esc(data.titre)}"/></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Photo</label>
+      <div class="img-upload-area" id="${areaId}" onclick="document.getElementById('${inputId}').click()" style="padding:0.8rem;">
+        <span class="img-upload-btn">📷 Choisir une photo</span>
+        <span class="img-upload-label">JPG, PNG, WebP</span>
+        <img id="${previewId}" class="img-preview-round" style="display:${data.photo?'block':'none'};" src="${data.photo||''}" alt="Aperçu"/>
+      </div>
+      <input type="hidden" id="${hiddenId}" data-key="photo" value="${esc(data.photo)}"/>
+      <input type="file" id="${inputId}" accept="image/*" style="display:none" onchange="handleImageUpload('${inputId}','${previewId}','${hiddenId}','${areaId}')"/>
+      <button type="button" class="img-clear-btn" style="margin-top:0.3rem;" onclick="clearImage('${previewId}','${hiddenId}','${areaId}')">✕ Supprimer</button>
+    </div>`;
+  c.appendChild(div);
+}
+
+function collectGroupes() {
+  const groups = [];
+  document.querySelectorAll('#groupes-container > .item-card').forEach(groupCard => {
+    const nomInput = groupCard.querySelector('[data-key="nom"]');
+    const nom = nomInput ? nomInput.value.trim() : '';
+    const membres = [];
+    groupCard.querySelectorAll('.item-card').forEach(memberCard => {
+      const m = {};
+      memberCard.querySelectorAll('[data-key]').forEach(el => {
+        m[el.dataset.key] = el.value.trim();
+      });
+      if (m.nom || m.titre) membres.push(m);
+    });
+    if (nom || membres.length > 0) groups.push({ nom, membres });
+  });
+  return groups;
+}
+
+function addTimelineEvent(data = {}) {
+  const c = document.getElementById('timeline-container');
+  const div = document.createElement('div');
+  div.className = 'item-card';
+  div.innerHTML = `
+    <div class="item-card-head">
+      <span class="item-card-title">Événement</span>
+      <button class="btn-del" onclick="this.closest('.item-card').remove()">Supprimer</button>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group"><label class="form-label">Année / Période</label><input class="form-input" data-key="annee" value="${esc(data.annee)}"/></div>
+      <div class="form-group"><label class="form-label">Titre</label><input class="form-input" data-key="titre" value="${esc(data.titre)}"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" data-key="desc" style="min-height:70px;">${esc(data.desc)}</textarea></div>`;
+  c.appendChild(div);
+}
+
+function addArticle(data = {}) {
+  const c = document.getElementById('articles-container');
+  const div = document.createElement('div');
+  div.className = 'item-card';
+  div.innerHTML = `
+    <div class="item-card-head">
+      <span class="item-card-title">Article constitutionnel</span>
+      <button class="btn-del" onclick="this.closest('.item-card').remove()">Supprimer</button>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group"><label class="form-label">Numéro (ex: Article I)</label><input class="form-input" data-key="num" value="${esc(data.num)}"/></div>
+      <div class="form-group"><label class="form-label">Titre</label><input class="form-input" data-key="titre" value="${esc(data.titre)}"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Texte</label><textarea class="form-textarea" data-key="texte" style="min-height:90px;">${esc(data.texte)}</textarea></div>`;
+  c.appendChild(div);
+}
+
+function addPays(data = {}) {
+  const c = document.getElementById('pays-container');
+  const div = document.createElement('div');
+  div.className = 'item-card';
+  div.innerHTML = `
+    <div class="item-card-head">
+      <span class="item-card-title">Nation</span>
+      <button class="btn-del" onclick="this.closest('.item-card').remove()">Supprimer</button>
+    </div>
+    <div class="form-grid-3">
+      <div class="form-group"><label class="form-label">Nom du pays</label><input class="form-input" data-key="nom" value="${esc(data.nom)}"/></div>
+      <div class="form-group">
+        <label class="form-label">Statut</label>
+        <select class="form-input form-select" data-key="statut">
+          <option value="ally"     ${data.statut==='ally'    ?'selected':''}>Allié</option>
+          <option value="neutral"  ${data.statut==='neutral' ?'selected':''}>Neutre</option>
+          <option value="observer" ${data.statut==='observer'?'selected':''}>Observateur</option>
+          <option value="treaty"   ${data.statut==='treaty'  ?'selected':''}>Traité</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Notes</label><input class="form-input" data-key="notes" value="${esc(data.notes)}"/></div>
+    </div>`;
+  c.appendChild(div);
+}
+
+function addArticle2(data = {}) {
+  const c = document.getElementById('news-container');
+  const div = document.createElement('div');
+  div.className = 'item-card';
+  const inputId   = uid();
+  const previewId = uid();
+  const hiddenId  = uid();
+  const areaId    = uid();
+  div.innerHTML = `
+    <div class="item-card-head">
+      <span class="item-card-title">Article / Communiqué</span>
+      <button class="btn-del" onclick="this.closest('.item-card').remove()">Supprimer</button>
+    </div>
+    <div class="form-grid-2">
+      <div class="form-group"><label class="form-label">Titre</label><input class="form-input" data-key="titre" value="${esc(data.titre)}"/></div>
+      <div class="form-group"><label class="form-label">Date</label><input class="form-input" data-key="date" value="${esc(data.date)}" placeholder="ex: 15 mai 2026"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Auteur / Source</label><input class="form-input" data-key="auteur" value="${esc(data.auteur)}" placeholder="Chancellerie d'État"/></div>
+    <div class="form-group"><label class="form-label">Contenu de l'article</label><textarea class="form-textarea" data-key="contenu" style="min-height:130px;">${esc(data.contenu)}</textarea></div>
+    <div class="form-group">
+      <label class="form-label">Image de bannière <span style="color:var(--text-light);font-weight:400;text-transform:none;">(optionnel — affichée en haut de l'article)</span></label>
+      <div class="img-upload-area" id="${areaId}" onclick="document.getElementById('${inputId}').click()">
+        <span class="img-upload-btn">🖼️ Choisir une bannière</span>
+        <span class="img-upload-label">JPG, PNG, WebP — max 5 Mo — format paysage recommandé</span>
+        <img id="${previewId}" class="img-preview" style="display:${data.banniere?'block':'none'};" src="${data.banniere||''}" alt="Aperçu bannière"/>
+      </div>
+      <input type="hidden" id="${hiddenId}" data-key="banniere" value="${esc(data.banniere)}"/>
+      <input type="file" id="${inputId}" accept="image/*" style="display:none" onchange="handleImageUpload('${inputId}','${previewId}','${hiddenId}','${areaId}')"/>
+      <button type="button" class="img-clear-btn" style="margin-top:0.4rem;" onclick="clearImage('${previewId}','${hiddenId}','${areaId}')">✕ Supprimer la bannière</button>
+    </div>`;
+  c.appendChild(div);
+}
+
+// ============================================================
+//  ACCOUNT
+// ============================================================
+async function changePassword() {
+  const np = document.getElementById('new-pass').value;
+  const cp = document.getElementById('confirm-pass').value;
+  if (!np || !cp) return showAlert('Renseignez les deux champs.', 'error');
+  if (np !== cp)  return showAlert('Les mots de passe ne correspondent pas.', 'error');
+  if (np.length < 6) return showAlert('Au moins 6 caractères requis.', 'error');
+  showSpinner(true);
+  try {
+    await auth.currentUser.updatePassword(np);
+    showAlert('Mot de passe mis à jour avec succès.', 'success');
+    document.getElementById('new-pass').value = '';
+    document.getElementById('confirm-pass').value = '';
+  } catch(e) {
+    showAlert('Erreur : ' + (e.code === 'auth/requires-recent-login' ? 'Reconnectez-vous avant de changer le mot de passe.' : e.message), 'error');
+  } finally { showSpinner(false); }
+}
+
+// ============================================================
+//  HELPERS
+// ============================================================
+function collectItems(containerId, keys) {
+  const cards = document.querySelectorAll(`#${containerId} .item-card`);
+  return Array.from(cards).map(card => {
+    const obj = {};
+    keys.forEach(k => {
+      const el = card.querySelector(`[data-key="${k}"]`);
+      obj[k] = el ? el.value : '';
+    });
+    return obj;
+  });
+}
+function setVal(id, val) { const el = document.getElementById(id); if (el) el.value = val || ''; }
+function getVal(id)       { const el = document.getElementById(id); return el ? el.value : ''; }
+function esc(str)         { return (str||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function initiales(name)  { return (name||'').trim().split(' ').filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join(''); }
+function setStatus(msg, cls='') {
+  const el = document.getElementById('save-status');
+  el.textContent = msg; el.className = 'save-status ' + cls;
+  if (cls==='ok') setTimeout(() => { el.textContent='Prêt'; el.className='save-status'; }, 3000);
+}
+function showAlert(msg, type) {
+  const el = document.getElementById('global-alert');
+  el.textContent = msg; el.className = `alert alert-${type}`; el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+function showSpinner(show) { document.getElementById('spinner').classList.toggle('show', show); }
+
+// ============================================================
+//  MESSAGES — load on section show
+// ============================================================
+const _sectionLoaded = {};
+
+const _origShowSection = window.showSection || function(){};
+function showSection(name) {
+  document.querySelectorAll('.a-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-' + name).classList.add('active');
+  document.querySelector(`[data-section="${name}"]`)?.classList.add('active');
+  if (name === 'messages' && !_sectionLoaded.messages)    { loadMessages();   _sectionLoaded.messages = true; }
+  if (name === 'demandes-cit' && !_sectionLoaded.demCit)  { loadDemandesCit(); _sectionLoaded.demCit = true; }
+  if (name === 'citizens' && !_sectionLoaded.citizens)    { loadCitizens();   _sectionLoaded.citizens = true; }
+}
+
+// ===== BADGE COUNTERS =====
+async function loadBadgeCounts() {
+  try {
+    const [msgSnap, citSnap] = await Promise.all([
+      db.ref('messages/contact').orderByChild('lu').equalTo(false).once('value'),
+      db.ref('messages/citoyennete').orderByChild('lu').equalTo(false).once('value')
+    ]);
+    const msgCount = msgSnap.numChildren();
+    const citCount = citSnap.numChildren();
+    const bMsg = document.getElementById('badge-msg');
+    const bCit = document.getElementById('badge-cit');
+    if (msgCount > 0) { bMsg.textContent = msgCount; bMsg.style.display = 'inline'; }
+    if (citCount > 0) { bCit.textContent = citCount; bCit.style.display = 'inline'; }
+  } catch(e) {}
+}
+loadBadgeCounts();
+
+// ===== DEST LABEL MAP =====
+const destLabels = {
+  chef_supreme: '👑 Chef Suprême',
+  gouvernement: '🏛️ Gouvernement',
+  chancellerie: '📋 Chancellerie',
+  diplomatie:   '🌍 Diplomatie',
+  justice:      '⚖️ Justice',
+  interieur:    '🔐 Intérieur'
+};
+
+// ===== LOAD CONTACT MESSAGES =====
+async function loadMessages() {
+  const el = document.getElementById('messages-list');
+  el.innerHTML = '<p style="color:var(--gray);">Chargement…</p>';
+  try {
+    const snap = await db.ref('messages/contact').orderByChild('timestamp').once('value');
+    const items = [];
+    snap.forEach(c => items.unshift({ key: c.key, ...c.val() }));
+    if (items.length === 0) { el.innerHTML = '<p style="color:var(--gray);">Aucun message reçu.</p>'; return; }
+    el.innerHTML = items.map(m => `
+      <div class="item-card" style="border-left:4px solid ${m.lu ? 'var(--border)' : 'var(--red)'};">
+        <div class="item-card-head" style="flex-wrap:wrap;gap:0.5rem;">
+          <span class="item-card-title" style="display:flex;align-items:center;gap:0.5rem;">
+            ${m.lu ? '' : '<span style="width:8px;height:8px;background:var(--red);border-radius:50%;display:inline-block;flex-shrink:0;"></span>'}
+            ${esc(m.prenom)} ${esc(m.nom)}
+          </span>
+          <span style="margin-left:auto;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+            <span style="background:var(--off-white);border:1px solid var(--border);padding:2px 10px;font-size:0.72rem;font-weight:700;border-radius:2px;">${destLabels[m.destinataire] || m.destinataireLabel || m.destinataire}</span>
+            <span style="font-size:0.75rem;color:var(--text-light);">${m.date || ''}</span>
+            ${!m.lu ? `<button class="btn-del" style="background:var(--blue);color:#fff;" onclick="markMsgRead('${m.key}', this)">Marquer lu</button>` : '<span style="font-size:0.72rem;color:var(--gray);">✓ Lu</span>'}
+          </span>
+        </div>
+        <div style="margin-top:0.5rem;font-size:0.8rem;color:var(--text-light);display:flex;gap:1.5rem;flex-wrap:wrap;">
+          <span>📧 <a href="mailto:${esc(m.email)}" style="color:var(--blue);">${esc(m.email)}</a></span>
+          ${m.tel ? `<span>📞 ${esc(m.tel)}</span>` : ''}
+        </div>
+        <div style="margin-top:0.85rem;background:var(--off-white);border:1px solid var(--border);border-radius:4px;padding:1rem;font-size:0.875rem;color:var(--black);line-height:1.6;white-space:pre-wrap;">${esc(m.message)}</div>
+      </div>`).join('');
+  } catch(e) { el.innerHTML = '<p style="color:var(--red);">Erreur de chargement.</p>'; }
+}
+
+async function markMsgRead(key, btn) {
+  await db.ref(`messages/contact/${key}/lu`).set(true);
+  btn.closest('.item-card').style.borderLeftColor = 'var(--border)';
+  btn.remove();
+  loadBadgeCounts();
+}
+
+// ===== LOAD CITIZENSHIP REQUESTS =====
+const _demandeCache = {}; // key -> demande object
+
+async function loadDemandesCit() {
+  const el = document.getElementById('demandes-list');
+  el.innerHTML = '<p style="color:var(--gray);">Chargement…</p>';
+  try {
+    const snap = await db.ref('messages/citoyennete').orderByChild('timestamp').once('value');
+    const items = [];
+    snap.forEach(c => items.unshift({ key: c.key, ...c.val() }));
+    if (items.length === 0) { el.innerHTML = '<p style="color:var(--gray);">Aucune demande reçue.</p>'; return; }
+    // Store in cache so accepterDemande can retrieve by key safely
+    items.forEach(d => { _demandeCache[d.key] = d; });
+
+    const statutBadge = {
+      en_attente: '<span style="background:#fef9c3;color:#854d0e;padding:2px 10px;font-size:0.72rem;font-weight:700;border-radius:2px;border:1px solid #fde047;">⏳ En attente</span>',
+      accepte:    '<span style="background:#f0fdf4;color:#166534;padding:2px 10px;font-size:0.72rem;font-weight:700;border-radius:2px;border:1px solid #86efac;">✓ Accepté</span>',
+      refuse:     '<span style="background:#fef2f2;color:#7f1d1d;padding:2px 10px;font-size:0.72rem;font-weight:700;border-radius:2px;border:1px solid #fca5a5;">✗ Refusé</span>'
+    };
+    const sexeLabel = { M: 'M.', F: 'Mme', A: '' };
+
+    el.innerHTML = items.map(d => `
+      <div class="item-card" id="dem-${d.key}" style="border-left:4px solid ${d.statut === 'en_attente' ? '#f59e0b' : d.statut === 'accepte' ? '#22c55e' : 'var(--border)'};">
+        <div class="item-card-head" style="flex-wrap:wrap;gap:0.5rem;">
+          <span class="item-card-title">${sexeLabel[d.sexe] || ''} ${esc(d.nom)} ${esc(d.prenom)}</span>
+          <span style="margin-left:auto;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+            ${statutBadge[d.statut] || ''}
+            <span style="font-size:0.75rem;color:var(--text-light);">${d.date || ''}</span>
+          </span>
+        </div>
+        <div style="margin-top:0.5rem;font-size:0.8rem;color:var(--text-light);display:flex;gap:1.5rem;flex-wrap:wrap;">
+          <span>📧 <a href="mailto:${esc(d.email)}" style="color:var(--blue);">${esc(d.email)}</a></span>
+          ${d.tel ? `<span>📞 ${esc(d.tel)}</span>` : ''}
+          <span>🎂 ${d.naissance || '—'}</span>
+          <span>🌍 ${esc(d.nationalite || '—')}</span>
+        </div>
+        <div style="margin-top:0.75rem;display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div style="background:var(--off-white);border:1px solid var(--border);border-radius:4px;padding:0.75rem;">
+            <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-bottom:0.3rem;">Parrain</p>
+            <p style="font-size:0.875rem;color:var(--black);">${esc(d.parrain || '—')}</p>
+          </div>
+          <div style="background:var(--off-white);border:1px solid var(--border);border-radius:4px;padding:0.75rem;">
+            <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-light);margin-bottom:0.3rem;">Motivation</p>
+            <p style="font-size:0.82rem;color:var(--black);line-height:1.5;">${esc((d.motivation || '').slice(0,180))}${d.motivation && d.motivation.length > 180 ? '…' : ''}</p>
+          </div>
+        </div>
+        ${d.statut === 'en_attente' ? `
+        <div style="margin-top:1rem;display:flex;gap:0.75rem;">
+          <button class="btn btn-gold" style="font-size:0.8rem;padding:0.4rem 1.2rem;" onclick="accepterDemande('${d.key}')">✓ Accepter</button>
+          <button class="btn btn-red" style="font-size:0.8rem;padding:0.4rem 1.2rem;" onclick="refuserDemande('${d.key}')">✗ Refuser</button>
+        </div>` : ''}
+      </div>`).join('');
+  } catch(e) { el.innerHTML = '<p style="color:var(--red);">Erreur de chargement.</p>'; }
+}
+
+async function accepterDemande(key) {
+  const data = _demandeCache[key];
+  if (!data) { showAlert('Erreur : données introuvables, rechargez la page.', 'error'); return; }
+  if (!confirm(`Accepter la demande de ${data.prenom} ${data.nom} ? Un dossier de citoyenneté sera créé.`)) return;
+  try {
+    // Generate unique 6-digit ID starting from 145670
+    const snap = await db.ref('citizens').once('value');
+    const existingCount = snap.numChildren();
+    let newIdNum = 145670 + existingCount + 1;
+    // Ensure no collision with existing keys
+    if (snap.exists()) {
+      const existingIds = Object.keys(snap.val()).map(Number).filter(n => !isNaN(n));
+      const maxId = existingIds.length > 0 ? Math.max(...existingIds) : 145670;
+      newIdNum = Math.max(newIdNum, maxId + 1);
+    }
+    const citizenId = String(newIdNum);
+
+    const sexeLabel = { M: 'M.', F: 'Mme', A: '' };
+    const prefix = sexeLabel[data.sexe] || '';
+
+    const citizenData = {
+      prenom:    data.prenom,
+      nom:       data.nom,
+      sexe:      data.sexe,
+      email:     data.email,
+      adresse:   data.adresse || null,
+      naissance: data.naissance,
+      adhesion:  new Date().toLocaleDateString('fr-FR', {day:'numeric',month:'long',year:'numeric'}),
+      expiration: (() => {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() + 5);
+        return d.toISOString().split('T')[0];
+      })(),
+      identifiant: citizenId,
+      uid:       data.uid || null,
+      photo:     data.photo || null,
+      statut:    'actif'
+    };
+
+    await Promise.all([
+      db.ref(`citizens/${citizenId}`).set(citizenData),
+      db.ref(`messages/citoyennete/${key}/statut`).set('accepte'),
+      db.ref(`messages/citoyennete/${key}/lu`).set(true),
+      // Increment citizen count
+      db.ref('content/stats/habitants').transaction(n => (n || 0) + 1)
+    ]);
+
+    showAlert(`✓ ${prefix} ${data.nom} ${data.prenom} est maintenant citoyen(ne) de Kerdoré — ID #${citizenId}`, 'success');
+    _sectionLoaded.demCit = false;
+    _sectionLoaded.citizens = false;
+    loadDemandesCit();
+    loadBadgeCounts();
+  } catch(e) {
+    showAlert('Erreur : ' + e.message, 'error');
+  }
+}
+
+async function refuserDemande(key) {
+  if (!confirm('Refuser cette demande de citoyenneté ?')) return;
+  await db.ref(`messages/citoyennete/${key}/statut`).set('refuse');
+  await db.ref(`messages/citoyennete/${key}/lu`).set(true);
+  _sectionLoaded.demCit = false;
+  loadDemandesCit();
+  loadBadgeCounts();
+}
+
+// ===== LOAD CITIZENS =====
+let _allCitizens = [];
+
+async function loadCitizens() {
+  const el = document.getElementById('citizens-list');
+  el.innerHTML = '<p style="color:var(--gray);">Chargement…</p>';
+  try {
+    const snap = await db.ref('citizens').once('value');
+    _allCitizens = [];
+    snap.forEach(c => _allCitizens.push({ key: c.key, ...c.val() }));
+    filterCitizens();
+  } catch(e) { el.innerHTML = '<p style="color:var(--red);">Erreur de chargement.</p>'; }
+}
+
+function filterCitizens() {
+  const el       = document.getElementById('citizens-list');
+  const countEl  = document.getElementById('citizens-count');
+  const query    = (document.getElementById('citizen-search')?.value || '').toLowerCase().trim();
+  const statusF  = document.getElementById('citizen-filter-status')?.value || '';
+
+  if (_allCitizens.length === 0) {
+    countEl.textContent = '';
+    el.innerHTML = '<p style="color:var(--gray);">Aucun citoyen enregistré.</p>';
+    return;
+  }
+
+  const filtered = _allCitizens.filter(c => {
+    const matchStatus = !statusF || (c.statut || 'actif') === statusF;
+    const matchQuery  = !query ||
+      (c.nom || '').toLowerCase().includes(query) ||
+      (c.prenom || '').toLowerCase().includes(query) ||
+      (c.identifiant || '').includes(query);
+    return matchStatus && matchQuery;
+  });
+
+  const total = _allCitizens.length;
+  countEl.textContent = query || statusF
+    ? `${filtered.length} résultat${filtered.length > 1 ? 's' : ''} sur ${total} citoyen${total > 1 ? 's' : ''}`
+    : `${total} citoyen${total > 1 ? 's' : ''} enregistré${total > 1 ? 's' : ''}`;
+
+  if (filtered.length === 0) {
+    el.innerHTML = '<p style="color:var(--gray);">Aucun résultat pour cette recherche.</p>';
+    return;
+  }
+  el.innerHTML = filtered.map(c => buildIdCard(c)).join('');
+}
+
+function buildIdCard(c) {
+  const sexeLabel = { M: 'M.', F: 'Mme', A: '' };
+  const prefix = sexeLabel[c.sexe] || '';
+  const sectionTitle = `${prefix} ${(c.nom || '').toUpperCase()} ${c.prenom || ''}`;
+
+  const photoHTML = c.photo
+    ? `<img src="${c.photo}" alt="Photo"/>`
+    : `<div class="id-card-photo-silhouette"><svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="40" cy="28" rx="16" ry="18" fill="#8aadcc"/><ellipse cx="40" cy="75" rx="28" ry="22" fill="#8aadcc"/></svg></div>`;
+
+  // Expiration logic
+  const today = new Date(); today.setHours(0,0,0,0);
+  const expDate = c.expiration ? new Date(c.expiration) : null;
+  const daysLeft = expDate ? Math.ceil((expDate - today) / (1000*60*60*24)) : null;
+  let expiryColor = '#1a1a2e';
+  if (daysLeft !== null && daysLeft < 0)       expiryColor = '#dc2626';
+  else if (daysLeft !== null && daysLeft <= 30) expiryColor = '#ea580c';
+
+  const isActif = (c.statut || 'actif') === 'actif';
+
+  // Badges
+  let badges = `<span class="${isActif ? 'badge-actif' : 'badge-inactif'}">${isActif ? '● Actif' : '● Inactif'}</span>`;
+  if (c.renewalRequested) badges += `<span class="badge-renewal">📬 Renouvellement demandé</span>`;
+  else if (daysLeft !== null && daysLeft < 0)     badges += `<span class="badge-expired">⚠ Carte expirée</span>`;
+  else if (daysLeft !== null && daysLeft <= 30)   badges += `<span class="badge-expiring">⚠ Expire dans ${daysLeft}j</span>`;
+
+  const expiryDisplay = expDate ? expDate.toLocaleDateString('fr-FR') : '—';
+  const naissDisplay  = c.naissance ? new Date(c.naissance).toLocaleDateString('fr-FR') : '—';
+  const sexeDisplay   = c.sexe === 'M' ? 'M / Male' : c.sexe === 'F' ? 'F / Female' : 'A';
+
+  // MRZ lines
+  const mrzNom    = (c.nom||'').toUpperCase().replace(/ /g,'<').padEnd(13,'<');
+  const mrzPrenom = (c.prenom||'').toUpperCase().replace(/ /g,'<').padEnd(10,'<');
+  const mrzId     = (c.identifiant||'000000').padEnd(9,'<');
+  const mrzDate   = (c.naissance||'').replace(/-/g,'').slice(2) || '000000';
+
+  return `
+  <div class="citizen-card-wrap">
+    <h3 style="font-size:0.78rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-light);margin-bottom:0.6rem;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+      ${sectionTitle}
+      ${badges}
+    </h3>
+    <div class="id-card-kerdore" style="position:relative;">
+      ${!isActif ? '<div class="id-card-inactive-overlay"></div>' : ''}
+
+      <!-- Bande accent gauche -->
+      <div class="id-card-accent"></div>
+
+      <!-- Photo -->
+      <div class="id-card-photo-col">
+        <div class="id-card-photo">${photoHTML}</div>
+        <div class="id-card-sig-label">Signature</div>
+        <div style="width:75px;height:18px;border-bottom:1px solid #aaa;margin-top:2px;"></div>
+      </div>
+
+      <!-- Corps principal -->
+      <div class="id-card-body">
+
+        <!-- En-tête -->
+        <div class="id-card-header">
+          <div class="id-card-header-left">
+            <div class="id-card-emblem">
+              <img src="../assets/drapeau.png" alt="Kerdoré" style="width:24px;height:auto;border-radius:2px;"/>
+            </div>
+            <div class="id-card-titles">
+              <div class="id-card-country-name">DÉMOCRATIE DE KERDORÉ</div>
+              <div class="id-card-card-type">CARTE NATIONALE D'IDENTITÉ</div>
+              <div class="id-card-card-type-en">NATIONAL IDENTITY CARD</div>
+            </div>
+          </div>
+          <div class="id-card-flag-badge">KDR</div>
+        </div>
+
+        <!-- Champs -->
+        <div class="id-card-fields-grid">
+          <div class="id-card-field full">
+            <div class="id-field-label">NOM / <span class="id-field-label-en">Surname</span></div>
+            <div class="id-field-val">${(c.nom||'').toUpperCase()}</div>
+          </div>
+          <div class="id-card-field full">
+            <div class="id-field-label">PRÉNOMS / <span class="id-field-label-en">Given names</span></div>
+            <div class="id-field-val">${c.prenom || '—'}</div>
+          </div>
+          <div class="id-card-field">
+            <div class="id-field-label">SEXE / <span class="id-field-label-en">Sex</span></div>
+            <div class="id-field-val">${sexeDisplay}</div>
+          </div>
+          <div class="id-card-field">
+            <div class="id-field-label">DATE DE NAISS. / <span class="id-field-label-en">Date of birth</span></div>
+            <div class="id-field-val">${naissDisplay}</div>
+          </div>
+          <div class="id-card-field">
+            <div class="id-field-label">NATIONALITÉ / <span class="id-field-label-en">Nationality</span></div>
+            <div class="id-field-val small">KERDOREINE</div>
+          </div>
+          <div class="id-card-field">
+            <div class="id-field-label">DATE D'ADHÉSION</div>
+            <div class="id-field-val small">${c.adhesion || '—'}</div>
+          </div>
+          ${c.adresse ? `<div class="id-card-field full">
+            <div class="id-field-label">ADRESSE / <span class="id-field-label-en">Address</span></div>
+            <div class="id-field-val small" style="font-size:0.62rem;white-space:normal;">${esc(c.adresse)}</div>
+          </div>` : ''}
+        </div>
+
+        <!-- Bas : N° document + expiry -->
+        <div class="id-card-bottom">
+          <div class="id-card-docnum">
+            <div class="id-card-docnum-label">N° DU DOCUMENT / <span style="font-style:italic;font-weight:400;color:#888;font-size:0.4rem;">Document No.</span></div>
+            <div class="id-card-docnum-val">${c.identifiant || '??????'}</div>
+          </div>
+          <div class="id-card-expiry">
+            <div class="id-card-expiry-label">DATE D'EXPIR. / <span style="font-style:italic;font-weight:400;color:#888;font-size:0.4rem;">Expiry date</span></div>
+            <div class="id-card-expiry-val" style="color:${expiryColor};">${expiryDisplay}</div>
+          </div>
+        </div>
+
+        <!-- MRZ -->
+        <div class="id-card-mrz-strip">
+          KDR&lt;&lt;${mrzNom}&lt;${mrzPrenom}&lt;&lt;&lt;&lt;&lt;<br/>
+          ${mrzId}KDR${mrzDate}&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions admin -->
+    <div class="citizen-card-actions">
+      <button class="btn btn-ghost" style="font-size:0.75rem;padding:0.3rem 0.8rem;"
+        onclick="toggleCitizenStatus('${c.key}', '${isActif ? 'inactif' : 'actif'}')">
+        ${isActif ? '🔒 Désactiver la carte' : '✓ Réactiver la carte'}
+      </button>
+      ${(daysLeft === null || daysLeft <= 60) && !c.renewalRequested ? `
+      <button class="btn btn-gold" style="font-size:0.75rem;padding:0.3rem 0.8rem;"
+        onclick="sendRenewalRequest('${c.key}', '${esc(c.prenom)} ${esc(c.nom)}')">
+        📬 Demander le renouvellement
+      </button>` : ''}
+      ${c.renewalRequested ? `
+      <button class="btn btn-ghost" style="font-size:0.75rem;padding:0.3rem 0.8rem;"
+        onclick="clearRenewalRequest('${c.key}')">
+        ✕ Annuler demande renouvellement
+      </button>` : ''}
+
+    </div>
+  </div>`;
+}
+
+</script>
+</body>
+</html>

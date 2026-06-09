@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Communiqués officiels, décrets et dernières actualités de la Démocratie de Kerdoré."/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://info-kerdore.netlify.app/actualites.html"/>
+  <!-- Open Graph -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Actualités — Démocratie de Kerdoré"/>
+  <meta property="og:description" content="Communiqués officiels, décrets et dernières actualités de la Démocratie de Kerdoré."/>
+  <meta property="og:url" content="https://info-kerdore.netlify.app/actualites.html"/>
+  <meta property="og:image" content="https://info-kerdore.netlify.app/assets/drapeau_officiel.png"/>
+  <meta property="og:locale" content="fr_FR"/>
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Actualités — Démocratie de Kerdoré"/>
+  <meta name="twitter:description" content="Communiqués officiels, décrets et dernières actualités de la Démocratie de Kerdoré."/>
+  <title>Actualités — Démocratie de Kerdoré</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+<!-- PAGE LOADER -->
+<div class="page-loader" id="page-loader">
+  <div class="loader-flag">
+    <img src="assets/drapeau.png" alt="Kerdoré"/>
+  </div>
+  <div class="loader-dots"><span></span><span></span><span></span></div>
+  <p class="loader-label">Chargement en cours</p>
+</div>
+<nav class="navbar" id="main-nav"></nav>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <p class="page-label">Journal Officiel</p>
+    <h1 class="page-title">Actualités & Communiqués</h1>
+    <p class="page-desc">Décrets, communiqués officiels et informations de la Démocratie</p>
+  </div>
+</div>
+
+<div class="content-area" style="max-width:1100px;">
+  <div id="articles-list">
+    
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div><div class="footer-logo">KERDORÉ</div><p class="footer-desc">Portail officiel de la Démocratie de Kerdoré.</p></div>
+      <div>
+        <p class="footer-head">Navigation</p>
+        <ul class="footer-links">
+          <li><a href="index.html">Accueil</a></li>
+          <li><a href="gouvernement.html">Gouvernement</a></li>
+          <li><a href="constitution.html">Constitution</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="footer-head">Citoyens</p>
+        <ul class="footer-links">
+          <li><a href="citoyennete.html">Citoyenneté</a></li>
+          <li><a href="diplomatie.html">Diplomatie</a></li>
+        </ul>
+      </div>
+      <div><p class="footer-head">Admin</p><ul class="footer-links"><li><a href="admin/login.html">Espace Admin</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">Démocratie de Kerdoré — Tous droits réservés</div>
+  </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/content.js"></script>
+<script>
+  injectNav('actualites');
+  document.addEventListener('DOMContentLoaded', async () => {
+    const actu = await loadContent('actualites');
+    const list = document.getElementById('articles-list');
+    const arts = actu.articles || [];
+
+    if (arts.length === 0) {
+      list.innerHTML = '<p style="color:var(--text-light)">Aucune actualité publiée pour le moment.</p>';
+    } else {
+      list.innerHTML = [...arts].reverse().map(a => {
+        const bannerHtml = a.banniere
+          ? `<img class="article-banner" src="${a.banniere}" alt="Bannière — ${a.titre || ''}" loading="lazy"/>`
+          : '';
+        return `
+        <div class="article-full">
+          ${bannerHtml}
+          <h2>${a.titre || 'Sans titre'}</h2>
+          <div class="article-meta">
+            <span>📅 ${a.date || 'Date inconnue'}</span>
+            <span>✍️ ${a.auteur || 'Chancellerie'}</span>
+          </div>
+          <p class="article-body">${a.contenu || ''}</p>
+        </div>`;
+      }).join('');
+    }
+  });
+</script>
+<script>
+  // Hide page loader once DOM + Firebase content is ready
+  (function() {
+    function hideLoader() {
+      var l = document.getElementById('page-loader');
+      if (l) l.classList.add('hidden');
+    }
+    // Fallback: hide after 3.5s no matter what
+    var fallback = setTimeout(hideLoader, 3500);
+    document.addEventListener('kerdore:ready', function() {
+      clearTimeout(fallback); hideLoader();
+    });
+    // Also hide on window load
+    window.addEventListener('load', function() {
+      setTimeout(hideLoader, 600);
+    });
+  })();
+</script>
+</body>
+</html>
