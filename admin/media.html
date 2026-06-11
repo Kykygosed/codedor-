@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Médias — Admin Kerdoré</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    /* ===== ADMIN MÉDIAS ===== */
+
+    .adm-media-tabs {
+      display: flex; border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem; background: var(--white);
+    }
+    .adm-media-tab {
+      padding: 0.75rem 1.2rem; font-size: 0.8rem; font-weight: 600;
+      color: var(--text-light); cursor: pointer;
+      border-bottom: 3px solid transparent; transition: all .15s;
+    }
+    .adm-media-tab:hover { color: var(--blue); }
+    .adm-media-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+    .adm-media-section { display: none; padding: 1.5rem; }
+    .adm-media-section.active { display: block; }
+
+    /* ===== DRAPEAUX ===== */
+    .flag-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.2rem; margin-bottom: 1.5rem;
+    }
+    .flag-card {
+      border: 1px solid var(--border); background: var(--white);
+      border-radius: 2px; overflow: hidden;
+    }
+    .flag-card-preview {
+      background: var(--off-white); padding: 1.2rem;
+      display: flex; gap: 1rem; align-items: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .flag-img-wrap {
+      position: relative; flex-shrink: 0;
+    }
+    .flag-img-wrap img {
+      width: 100px; height: 60px; object-fit: cover;
+      border: 1px solid var(--border); display: block;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .flag-img-placeholder {
+      width: 100px; height: 60px;
+      background: var(--light-gray); border: 1px dashed var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+    }
+    .flag-arrow {
+      font-size: 1.2rem; color: var(--mid-gray); flex-shrink: 0;
+    }
+    .flag-card-body { padding: 0.85rem; }
+    .flag-card-actions {
+      display: flex; gap: 0.5rem; padding: 0.75rem 0.85rem 0.85rem;
+      border-top: 1px solid var(--light-gray);
+    }
+    .flag-current-badge {
+      display: inline-block; background: #18753C; color: #fff;
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 0.15rem 0.5rem; margin-bottom: 0.4rem;
+    }
+
+    /* Upload zone drapeau */
+    .flag-upload-zone {
+      border: 2px dashed var(--border); border-radius: 2px;
+      padding: 2rem; text-align: center; cursor: pointer;
+      transition: all .2s; background: var(--off-white); position: relative;
+    }
+    .flag-upload-zone:hover, .flag-upload-zone.dragover {
+      border-color: var(--blue); background: var(--blue-light);
+    }
+    .flag-upload-zone input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .flag-upload-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .flag-upload-text { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+    .flag-upload-sub { font-size: 0.72rem; color: var(--text-light); margin-top: 0.2rem; }
+
+    /* Cropper drapeau */
+    .flag-cropper-wrap {
+      display: none; margin-top: 1rem;
+      border: 1px solid var(--border); background: var(--black); position: relative;
+      max-height: 300px; overflow: hidden;
+    }
+    .flag-cropper-wrap.active { display: block; }
+    #flag-crop-canvas {
+      display: block; width: 100%; cursor: crosshair;
+    }
+    .flag-crop-overlay {
+      position: absolute; top: 0; left: 0; pointer-events: none;
+      border: 2px solid var(--cyan); box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
+    }
+    .flag-crop-actions {
+      display: none; gap: 0.6rem; margin-top: 0.75rem; align-items: center;
+    }
+    .flag-crop-actions.active { display: flex; }
+    .flag-aspect-info {
+      font-size: 0.72rem; color: var(--text-light); margin-left: auto;
+    }
+
+    /* ===== FOND D'ÉCRAN ACCUEIL ===== */
+    .bg-slides-list {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .bg-slide-card {
+      border: 1px solid var(--border); border-radius: 2px; overflow: hidden; background: var(--white);
+      position: relative;
+    }
+    .bg-slide-card.current-bg { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(0,49,137,0.2); }
+    .bg-slide-preview {
+      height: 120px; background: var(--off-white);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; position: relative; cursor: pointer;
+    }
+    .bg-slide-preview img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .bg-slide-preview-placeholder {
+      font-size: 2rem; color: var(--mid-gray);
+    }
+    .bg-slide-order {
+      position: absolute; top: 0.4rem; left: 0.4rem;
+      background: rgba(0,0,0,0.65); color: #fff;
+      font-size: 0.62rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 2px;
+    }
+    .bg-slide-body { padding: 0.7rem; }
+    .bg-slide-actions { display: flex; gap: 0.4rem; padding: 0 0.7rem 0.7rem; }
+
+    /* Cropper fond */
+    .bg-cropper-modal {
+      display: none; position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,0.85); align-items: center; justify-content: center;
+    }
+    .bg-cropper-modal.active { display: flex; }
+    .bg-cropper-box {
+      background: var(--white); width: min(800px, 95vw);
+      border-radius: 2px; overflow: hidden;
+    }
+    .bg-cropper-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.2rem; background: var(--blue-dark); color: var(--white);
+    }
+    .bg-cropper-title { font-size: 0.9rem; font-weight: 700; }
+    .bg-cropper-close {
+      background: none; border: none; color: rgba(255,255,255,0.7);
+      font-size: 1.2rem; cursor: pointer; padding: 0;
+    }
+    .bg-cropper-canvas-wrap {
+      background: #000; position: relative; overflow: hidden;
+      height: 380px; user-select: none;
+    }
+    #bg-crop-img {
+      display: block; max-width: 100%; max-height: 100%;
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      cursor: move;
+    }
+    .bg-crop-selection {
+      position: absolute; border: 2px solid var(--cyan);
+      box-shadow: 0 0 0 9999px rgba(0,0,0,0.55);
+      pointer-events: none;
+    }
+    .bg-cropper-footer {
+      padding: 1rem 1.2rem; display: flex; gap: 0.6rem; align-items: center;
+      border-top: 1px solid var(--border);
+    }
+    .bg-crop-ratio-info { font-size: 0.75rem; color: var(--text-light); margin-right: auto; }
+    .bg-zoom-bar {
+      display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: var(--text-light);
+    }
+    #bg-zoom-slider { width: 120px; accent-color: var(--blue); }
+
+    /* Preview strip accueil */
+    .bg-preview-strip {
+      background: var(--blue-dark); border-radius: 2px; overflow: hidden;
+      margin-bottom: 1.5rem; position: relative; height: 120px;
+    }
+    .bg-preview-strip img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: opacity 0.8s;
+    }
+    .bg-preview-label {
+      position: absolute; bottom: 0.5rem; right: 0.8rem;
+      font-size: 0.62rem; font-weight: 700; color: rgba(255,255,255,0.5);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+
+    /* Timing */
+    .timing-row {
+      display: flex; align-items: center; gap: 0.8rem;
+      padding: 0.85rem 1rem; background: var(--off-white);
+      border: 1px solid var(--border); margin-bottom: 1.5rem; border-radius: 2px;
+      font-size: 0.82rem;
+    }
+    .timing-row label { font-weight: 600; color: var(--text); }
+    .timing-row input[type=range] { width: 140px; accent-color: var(--blue); }
+    .timing-val { font-weight: 700; color: var(--blue); min-width: 3rem; }
+
+    /* Upload zone fond */
+    .bg-upload-zone {
+      border: 2px dashed var(--border); padding: 1.5rem; text-align: center;
+      cursor: pointer; transition: all .2s; background: var(--off-white);
+      position: relative; border-radius: 2px; margin-bottom: 1rem;
+    }
+    .bg-upload-zone:hover { border-color: var(--blue); background: var(--blue-light); }
+    .bg-upload-zone input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+
+    /* Drag to reorder */
+    .bg-slide-card.dragging { opacity: 0.4; border: 2px dashed var(--blue); }
+    .bg-slide-card.drag-over { background: var(--blue-light); }
+  </style>
+</head>
+<body>
+
+<div class="spinner-overlay" id="spinner"><div class="spinner"></div></div>
+
+<!-- Cropper modal fond d'écran -->
+<div class="bg-cropper-modal" id="bg-cropper-modal">
+  <div class="bg-cropper-box">
+    <div class="bg-cropper-header">
+      <span class="bg-cropper-title">✂️ Recadrer l'image</span>
+      <button class="bg-cropper-close" onclick="closeBgCropper()">✕</button>
+    </div>
+    <div class="bg-cropper-canvas-wrap" id="bg-cropper-wrap">
+      <img id="bg-crop-img" src="" alt=""/>
+      <div class="bg-crop-selection" id="bg-crop-sel"></div>
+    </div>
+    <div class="bg-cropper-footer">
+      <div class="bg-zoom-bar">
+        Zoom
+        <input type="range" id="bg-zoom-slider" min="0.5" max="3" step="0.05" value="1" oninput="updateBgZoom(this.value)"/>
+        <span id="bg-zoom-val">100%</span>
+      </div>
+      <span class="bg-crop-ratio-info">Format : rectangle paysage (16:5) — glissez pour repositionner</span>
+      <button class="btn btn-ghost" onclick="closeBgCropper()">Annuler</button>
+      <button class="btn btn-blue" onclick="confirmBgCrop()">✓ Valider le recadrage</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAVIGATION -->
+<nav class="navbar" id="main-nav"></nav>
+
+<div class="admin-wrap">
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-label">Médias</div>
+    <a class="sidebar-item active" id="stab-flags" onclick="showMediaTab('flags', this)">🏳 Historique des drapeaux</a>
+    <a class="sidebar-item" id="stab-bg" onclick="showMediaTab('bg', this)">🖼 Fond d'écran accueil</a>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-label">Administration</div>
+    <a class="sidebar-item" href="dashboard.html">← Tableau de bord</a>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="admin-main" style="padding:0;">
+
+    <!-- Header -->
+    <div style="display:flex; align-items:center; gap:1rem; padding:1.5rem; background:var(--blue-dark); border-bottom:1px solid rgba(255,255,255,0.1);">
+      <div>
+        <div style="font-size:1.1rem; font-weight:800; color:var(--white);">🖼 Gestion des médias</div>
+        <div style="font-size:0.78rem; color:rgba(255,255,255,0.5); margin-top:0.1rem;">Drapeaux historiques & fond d'écran de l'accueil</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="adm-media-tabs">
+      <div class="adm-media-tab active" onclick="showMediaTab('flags', this)">🏳 Drapeaux</div>
+      <div class="adm-media-tab" onclick="showMediaTab('bg', this)">🖼 Fond d'écran</div>
+    </div>
+
+    <!-- ===== SECTION DRAPEAUX ===== -->
+    <div id="section-flags" class="adm-media-section active">
+
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:1.5rem; gap:1rem;">
+        <div>
+          <div class="a-title">Historique des drapeaux</div>
+          <div class="a-desc" style="border:none;padding:0;margin:0;">Chaque entrée affiche l'ancien et le nouveau drapeau côte à côte sur la page Histoire, avec le motif du changement.</div>
+        </div>
+        <button class="btn btn-blue" onclick="addFlagEntry()" style="flex-shrink:0;">+ Nouveau drapeau</button>
+      </div>
+
+      <div id="flags-list">
+        <div style="text-align:center; padding:3rem; color:var(--mid-gray); font-size:0.84rem;">Chargement…</div>
+      </div>
+
+    </div>
+
+    <!-- ===== SECTION FOND D'ÉCRAN ===== -->
+    <div id="section-bg" class="adm-media-section">
+
+      <div class="a-title" style="margin-bottom:0.3rem;">Fond d'écran de l'accueil</div>
+      <div class="a-desc" style="border:none;padding:0;margin:0 0 1.5rem;">Les images défilent toutes les X secondes sur le hero de la page d'accueil. Format rectangle paysage (16:5). Glissez-déposez pour réordonner.</div>
+
+      <!-- Timing -->
+      <div class="timing-row">
+        <label>Durée d'affichage par image :</label>
+        <input type="range" id="bg-timing" min="2" max="15" step="1" value="5" oninput="document.getElementById('bg-timing-val').textContent=this.value+'s'"/>
+        <span class="timing-val" id="bg-timing-val">5s</span>
+        <span style="font-size:0.75rem; color:var(--text-light);">Transition : fondu enchaîné</span>
+      </div>
+
+      <!-- Upload zone -->
+      <div class="bg-upload-zone" id="bg-upload-zone">
+        <input type="file" accept="image/*" multiple onchange="handleBgUpload(this.files)"/>
+        <div style="font-size:1.8rem; margin-bottom:0.4rem;">🖼</div>
+        <div style="font-size:0.82rem; font-weight:600; color:var(--text);">Glissez des images ici ou cliquez pour sélectionner</div>
+        <div style="font-size:0.72rem; color:var(--text-light); margin-top:0.2rem;">JPG, PNG — plusieurs fichiers acceptés — recadrage automatique en 16:5</div>
+      </div>
+
+      <!-- Aperçu mini -->
+      <div class="bg-preview-strip" id="bg-preview-strip" style="display:none;">
+        <img id="bg-preview-img" src="" alt="Aperçu"/>
+        <span class="bg-preview-label">Aperçu accueil</span>
+      </div>
+
+      <!-- Liste des slides -->
+      <div class="bg-slides-list" id="bg-slides-list">
+        <div style="text-align:center; padding:2rem; color:var(--mid-gray); font-size:0.84rem; grid-column:1/-1;">Chargement…</div>
+      </div>
+
+    </div>
+
+    <!-- SAVE BAR -->
+    <div class="save-bar">
+      <span class="save-status" id="save-status">Modifications non sauvegardées</span>
+      <div style="display:flex; gap:0.6rem;">
+        <button class="btn btn-ghost" onclick="loadAll()">↺ Recharger</button>
+        <button class="btn btn-blue" onclick="saveAll()">💾 Sauvegarder</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="../js/nav.js"></script>
+<script src="../js/content.js"></script>
+<script>
+
+injectNav('admin');
+auth.onAuthStateChanged(u => { if (!u) location.href = 'login.html'; });
+
+// ===== STATE =====
+let FLAGS = [];   // [{id, date, motif, avant_b64, avant_nom, apres_b64, apres_nom, est_actuel}]
+let BG    = [];   // [{id, b64, alt}]
+let BG_TIMING = 5;
+
+// ===== TABS =====
+function showMediaTab(name, el) {
+  document.querySelectorAll('.adm-media-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.adm-media-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('section-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+}
+
+// ===== FIREBASE =====
+async function loadAll() {
+  showSpinner(true);
+  try {
+    const [snapF, snapB] = await Promise.all([
+      db.ref('media/flags').once('value'),
+      db.ref('media/bg').once('value')
+    ]);
+    FLAGS = snapF.val() ? Object.values(snapF.val()) : [];
+    const bgData = snapB.val() || {};
+    BG = bgData.slides ? bgData.slides : [];
+    BG_TIMING = bgData.timing || 5;
+    document.getElementById('bg-timing').value = BG_TIMING;
+    document.getElementById('bg-timing-val').textContent = BG_TIMING + 's';
+    renderFlags();
+    renderBgSlides();
+    setSaveStatus('Chargé ✓', 'ok');
+  } catch(e) {
+    FLAGS = []; BG = [];
+    renderFlags(); renderBgSlides();
+    setSaveStatus('Firebase indisponible', 'err');
+  }
+  showSpinner(false);
+}
+
+async function saveAll() {
+  showSpinner(true);
+  try {
+    // Flags : objet indexé par id
+    const flagsObj = {};
+    FLAGS.forEach(f => { flagsObj[f.id] = f; });
+    await Promise.all([
+      db.ref('media/flags').set(flagsObj),
+      db.ref('media/bg').set({ slides: BG, timing: parseInt(document.getElementById('bg-timing').value) })
+    ]);
+    setSaveStatus('Sauvegardé ✓', 'ok');
+  } catch(e) {
+    setSaveStatus('Erreur : ' + e.message, 'err');
+  }
+  showSpinner(false);
+}
+
+// ===== DRAPEAUX =====
+
+function renderFlags() {
+  const list = document.getElementById('flags-list');
+  if (!FLAGS.length) {
+    list.innerHTML = `<div style="text-align:center; padding:3rem; color:var(--mid-gray);">
+      <div style="font-size:2rem; margin-bottom:0.5rem;">🏳</div>
+      <div style="font-weight:700; margin-bottom:0.3rem;">Aucun drapeau enregistré</div>
+      <div style="font-size:0.8rem;">Cliquez « + Nouveau drapeau » pour commencer.</div>
+    </div>`;
+    return;
+  }
+  list.innerHTML = '';
+  FLAGS.forEach((f, i) => {
+    const el = document.createElement('div');
+    el.className = 'flag-card';
+    el.dataset.idx = i;
+    el.innerHTML = `
+      <div class="flag-card-preview">
+        <div class="flag-img-wrap">
+          ${f.avant_b64
+            ? `<img src="${f.avant_b64}" alt="Avant"/>`
+            : `<div class="flag-img-placeholder">🏳</div>`}
+          <div style="font-size:0.6rem; text-align:center; margin-top:0.3rem; color:var(--text-light);">${f.avant_nom || 'Avant'}</div>
+        </div>
+        <span class="flag-arrow">→</span>
+        <div class="flag-img-wrap">
+          ${f.apres_b64
+            ? `<img src="${f.apres_b64}" alt="Après"/>`
+            : `<div class="flag-img-placeholder">🏳</div>`}
+          <div style="font-size:0.6rem; text-align:center; margin-top:0.3rem; color:var(--text-light);">${f.apres_nom || 'Après'}</div>
+        </div>
+      </div>
+      <div class="flag-card-body">
+        ${f.est_actuel ? '<div class="flag-current-badge">Drapeau actuel</div>' : ''}
+        <div class="form-group" style="margin-bottom:0.6rem;">
+          <label class="form-label">Date du changement</label>
+          <input class="form-input" value="${esc(f.date||'')}" placeholder="ex: juin 2026" oninput="FLAGS[${i}].date=this.value; markChanged()"/>
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label class="form-label">Motif du changement</label>
+          <textarea class="form-textarea" rows="2" placeholder="Raison du changement de drapeau…" oninput="FLAGS[${i}].motif=this.value; markChanged()">${esc(f.motif||'')}</textarea>
+        </div>
+      </div>
+      <div class="flag-card-actions">
+        <button class="btn btn-ghost" style="font-size:0.72rem; padding:0.3rem 0.7rem;" onclick="uploadFlagImg(${i}, 'avant')">📁 Image avant</button>
+        <button class="btn btn-ghost" style="font-size:0.72rem; padding:0.3rem 0.7rem;" onclick="uploadFlagImg(${i}, 'apres')">📁 Image après</button>
+        <button class="btn btn-ghost" style="font-size:0.72rem; padding:0.3rem 0.7rem;" onclick="toggleActuel(${i})">${f.est_actuel ? '★ Actuel' : '☆ Marquer actuel'}</button>
+        <button class="btn" style="font-size:0.72rem; padding:0.3rem 0.7rem; background:var(--red-light); color:var(--red); border:1px solid var(--red); margin-left:auto;" onclick="removeFlag(${i})">Supprimer</button>
+      </div>`;
+    list.appendChild(el);
+  });
+}
+
+function addFlagEntry() {
+  FLAGS.push({
+    id: 'flag_' + Date.now(),
+    date: '',
+    motif: '',
+    avant_b64: '',
+    avant_nom: 'Précédent',
+    apres_b64: '',
+    apres_nom: 'Nouveau',
+    est_actuel: FLAGS.length === 0
+  });
+  renderFlags();
+  markChanged();
+}
+
+function removeFlag(i) {
+  if (!confirm('Supprimer cette entrée ?')) return;
+  FLAGS.splice(i, 1);
+  renderFlags();
+  markChanged();
+}
+
+function toggleActuel(i) {
+  FLAGS.forEach((f, idx) => { f.est_actuel = (idx === i); });
+  renderFlags();
+  markChanged();
+}
+
+// Upload image de drapeau avec recadrage 5:3 intégré
+let _flagCropTarget = null; // {idx, side, file}
+function uploadFlagImg(idx, side) {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*';
+  inp.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    _flagCropTarget = { idx, side };
+    cropFlagImage(file);
+  };
+  inp.click();
+}
+
+function cropFlagImage(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      // Recadrage auto au format 5:3 centré
+      const canvas = document.createElement('canvas');
+      const targetW = 300, targetH = 180; // 5:3
+      canvas.width = targetW; canvas.height = targetH;
+      const ctx = canvas.getContext('2d');
+      // Calcul du crop centré
+      const srcRatio = img.width / img.height;
+      const tgtRatio = targetW / targetH;
+      let sx, sy, sw, sh;
+      if (srcRatio > tgtRatio) {
+        sh = img.height; sw = sh * tgtRatio;
+        sx = (img.width - sw) / 2; sy = 0;
+      } else {
+        sw = img.width; sh = sw / tgtRatio;
+        sx = 0; sy = (img.height - sh) / 2;
+      }
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetW, targetH);
+      const b64 = canvas.toDataURL('image/jpeg', 0.85);
+      const { idx, side } = _flagCropTarget;
+      if (side === 'avant') {
+        FLAGS[idx].avant_b64 = b64;
+        FLAGS[idx].avant_nom = file.name.replace(/\.[^.]+$/, '');
+      } else {
+        FLAGS[idx].apres_b64 = b64;
+        FLAGS[idx].apres_nom = file.name.replace(/\.[^.]+$/, '');
+      }
+      renderFlags();
+      markChanged();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ===== FOND D'ÉCRAN =====
+
+function renderBgSlides() {
+  const list = document.getElementById('bg-slides-list');
+  if (!BG.length) {
+    list.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:2rem; color:var(--mid-gray);">
+      <div style="font-size:1.8rem; margin-bottom:0.4rem;">🖼</div>
+      <div style="font-weight:700;">Aucune image</div>
+      <div style="font-size:0.8rem; margin-top:0.2rem;">Uploadez des images ci-dessus.</div>
+    </div>`;
+    document.getElementById('bg-preview-strip').style.display = 'none';
+    return;
+  }
+
+  // Aperçu
+  document.getElementById('bg-preview-strip').style.display = 'block';
+  document.getElementById('bg-preview-img').src = BG[0].b64;
+
+  list.innerHTML = '';
+  BG.forEach((slide, i) => {
+    const el = document.createElement('div');
+    el.className = 'bg-slide-card';
+    el.dataset.idx = i;
+    el.draggable = true;
+    el.innerHTML = `
+      <div class="bg-slide-preview" onclick="openBgCropper(${i})">
+        ${slide.b64 ? `<img src="${slide.b64}" alt="Slide ${i+1}"/>` : `<div class="bg-slide-preview-placeholder">🖼</div>`}
+        <div class="bg-slide-order">${i + 1}</div>
+        <div style="position:absolute; bottom:0.4rem; right:0.4rem; background:rgba(0,0,0,0.6); color:#fff; font-size:0.6rem; font-weight:700; padding:0.15rem 0.4rem; border-radius:2px;">✂ Recadrer</div>
+      </div>
+      <div class="bg-slide-body">
+        <div class="form-group" style="margin:0;">
+          <label class="form-label">Texte alternatif (optionnel)</label>
+          <input class="form-input" style="font-size:0.76rem;" value="${esc(slide.alt||'')}" placeholder="Description de l'image" oninput="BG[${i}].alt=this.value; markChanged()"/>
+        </div>
+      </div>
+      <div class="bg-slide-actions">
+        <button class="adm-btn-xs" onclick="moveBgSlide(${i}, -1)" ${i===0 ? 'disabled' : ''}>↑</button>
+        <button class="adm-btn-xs" onclick="moveBgSlide(${i},  1)" ${i===BG.length-1 ? 'disabled' : ''}>↓</button>
+        <button class="adm-btn-xs danger" onclick="removeBgSlide(${i})" style="margin-left:auto;">Supprimer</button>
+      </div>`;
+
+    // Drag & drop pour réordonner
+    el.addEventListener('dragstart', e => { e.dataTransfer.setData('idx', i); el.classList.add('dragging'); });
+    el.addEventListener('dragend',   () => el.classList.remove('dragging'));
+    el.addEventListener('dragover',  e => { e.preventDefault(); el.classList.add('drag-over'); });
+    el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+    el.addEventListener('drop', e => {
+      e.preventDefault(); el.classList.remove('drag-over');
+      const from = parseInt(e.dataTransfer.getData('idx'));
+      const to   = i;
+      if (from === to) return;
+      const item = BG.splice(from, 1)[0];
+      BG.splice(to, 0, item);
+      renderBgSlides(); markChanged();
+    });
+
+    list.appendChild(el);
+  });
+}
+
+function handleBgUpload(files) {
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      // On ajoute d'abord brut, puis on ouvre le cropper
+      const newSlide = { id: 'bg_' + Date.now() + Math.random(), b64: ev.target.result, alt: '' };
+      BG.push(newSlide);
+      renderBgSlides();
+      markChanged();
+      // Ouvrir le cropper sur la nouvelle slide
+      openBgCropper(BG.length - 1);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function removeBgSlide(i) {
+  if (!confirm('Supprimer cette image ?')) return;
+  BG.splice(i, 1);
+  renderBgSlides(); markChanged();
+}
+
+function moveBgSlide(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= BG.length) return;
+  [BG[i], BG[j]] = [BG[j], BG[i]];
+  renderBgSlides(); markChanged();
+}
+
+// ===== CROPPER FOND D'ÉCRAN =====
+// Ratio cible : 16:5 (rectangle paysage héro)
+const BG_RATIO = 16 / 5;
+let _bgCropIdx = null;
+let _bgCropImg = null;
+let _bgCropImgNatW = 0, _bgCropImgNatH = 0;
+let _bgZoom = 1;
+let _bgOffX = 0, _bgOffY = 0;
+let _bgDragging = false, _bgDragSX = 0, _bgDragSY = 0, _bgDragOX = 0, _bgDragOY = 0;
+
+function openBgCropper(idx) {
+  _bgCropIdx = idx;
+  _bgZoom = 1;
+  _bgOffX = 0; _bgOffY = 0;
+  document.getElementById('bg-zoom-slider').value = 1;
+  document.getElementById('bg-zoom-val').textContent = '100%';
+
+  const modal = document.getElementById('bg-cropper-modal');
+  const imgEl = document.getElementById('bg-crop-img');
+  imgEl.onload = () => {
+    _bgCropImgNatW = imgEl.naturalWidth;
+    _bgCropImgNatH = imgEl.naturalHeight;
+    fitBgImage();
+    updateBgSelection();
+  };
+  imgEl.src = BG[idx].b64;
+  modal.classList.add('active');
+  setupBgDrag();
+}
+
+function closeBgCropper() {
+  document.getElementById('bg-cropper-modal').classList.remove('active');
+}
+
+function fitBgImage() {
+  const wrap = document.getElementById('bg-cropper-wrap');
+  const imgEl = document.getElementById('bg-crop-img');
+  const wW = wrap.clientWidth, wH = wrap.clientHeight;
+  // Adapter l'image pour qu'elle couvre la zone
+  const scale = Math.max(wW / _bgCropImgNatW, wH / _bgCropImgNatH) * _bgZoom;
+  imgEl.style.width  = (_bgCropImgNatW * scale) + 'px';
+  imgEl.style.height = (_bgCropImgNatH * scale) + 'px';
+  imgEl.style.transform = `translate(calc(-50% + ${_bgOffX}px), calc(-50% + ${_bgOffY}px))`;
+  updateBgSelection();
+}
+
+function updateBgZoom(val) {
+  _bgZoom = parseFloat(val);
+  document.getElementById('bg-zoom-val').textContent = Math.round(val * 100) + '%';
+  fitBgImage();
+}
+
+function updateBgSelection() {
+  const wrap = document.getElementById('bg-cropper-wrap');
+  const sel  = document.getElementById('bg-crop-sel');
+  const wW = wrap.clientWidth, wH = wrap.clientHeight;
+  // La sélection est un rectangle centré au ratio 16:5
+  let selW, selH;
+  if (wW / wH > BG_RATIO) {
+    selW = wW; selH = selW / BG_RATIO;
+  } else {
+    selH = wH; selW = selH * BG_RATIO;
+  }
+  selW = Math.min(selW, wW); selH = Math.min(selH, wH);
+  sel.style.width  = selW + 'px';
+  sel.style.height = selH + 'px';
+  sel.style.left   = ((wW - selW) / 2) + 'px';
+  sel.style.top    = ((wH - selH) / 2) + 'px';
+}
+
+function setupBgDrag() {
+  const imgEl = document.getElementById('bg-crop-img');
+  imgEl.onmousedown = e => {
+    _bgDragging = true;
+    _bgDragSX = e.clientX; _bgDragSY = e.clientY;
+    _bgDragOX = _bgOffX;   _bgDragOY = _bgOffY;
+    e.preventDefault();
+  };
+  document.onmousemove = e => {
+    if (!_bgDragging) return;
+    _bgOffX = _bgDragOX + (e.clientX - _bgDragSX);
+    _bgOffY = _bgDragOY + (e.clientY - _bgDragSY);
+    fitBgImage();
+  };
+  document.onmouseup = () => { _bgDragging = false; };
+  // Touch
+  imgEl.ontouchstart = e => {
+    _bgDragging = true;
+    _bgDragSX = e.touches[0].clientX; _bgDragSY = e.touches[0].clientY;
+    _bgDragOX = _bgOffX; _bgDragOY = _bgOffY;
+  };
+  imgEl.ontouchmove = e => {
+    if (!_bgDragging) return;
+    _bgOffX = _bgDragOX + (e.touches[0].clientX - _bgDragSX);
+    _bgOffY = _bgDragOY + (e.touches[0].clientY - _bgDragSY);
+    fitBgImage(); e.preventDefault();
+  };
+  imgEl.ontouchend = () => { _bgDragging = false; };
+}
+
+function confirmBgCrop() {
+  const wrap   = document.getElementById('bg-cropper-wrap');
+  const imgEl  = document.getElementById('bg-crop-img');
+  const sel    = document.getElementById('bg-crop-sel');
+  const wW = wrap.clientWidth, wH = wrap.clientHeight;
+
+  // Coordonnées de la sélection dans la fenêtre
+  const selLeft = parseFloat(sel.style.left);
+  const selTop  = parseFloat(sel.style.top);
+  const selW    = parseFloat(sel.style.width);
+  const selH    = parseFloat(sel.style.height);
+
+  // Position de l'image dans la fenêtre
+  const rect = imgEl.getBoundingClientRect();
+  const wrapRect = wrap.getBoundingClientRect();
+  const imgLeft = rect.left - wrapRect.left;
+  const imgTop  = rect.top  - wrapRect.top;
+  const imgW    = rect.width;
+  const imgH    = rect.height;
+
+  // Coordonnées de la sélection dans l'image affichée
+  const cropX = selLeft - imgLeft;
+  const cropY = selTop  - imgTop;
+
+  // Ratio image affichée → image naturelle
+  const scaleX = _bgCropImgNatW / imgW;
+  const scaleY = _bgCropImgNatH / imgH;
+
+  // Canvas de sortie : 1600×500 (16:5)
+  const outW = 1600, outH = 500;
+  const canvas = document.createElement('canvas');
+  canvas.width = outW; canvas.height = outH;
+  const ctx = canvas.getContext('2d');
+
+  const natImg = new Image();
+  natImg.src = BG[_bgCropIdx].b64;
+  natImg.onload = () => {
+    ctx.drawImage(
+      natImg,
+      cropX * scaleX, cropY * scaleY,
+      selW * scaleX,  selH * scaleY,
+      0, 0, outW, outH
+    );
+    BG[_bgCropIdx].b64 = canvas.toDataURL('image/jpeg', 0.9);
+    renderBgSlides();
+    markChanged();
+    closeBgCropper();
+  };
+}
+
+// ===== UTILS =====
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function markChanged() { setSaveStatus('Modifications non sauvegardées'); }
+function setSaveStatus(msg, type) {
+  const el = document.getElementById('save-status');
+  el.textContent = msg; el.className = 'save-status' + (type ? ' '+type : '');
+}
+function showSpinner(on) { document.getElementById('spinner').classList.toggle('show', on); }
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => { injectNav('admin'); loadAll(); });
+</script>
+</body>
+</html>
