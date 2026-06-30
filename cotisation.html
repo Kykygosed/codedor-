@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Taxe de Citoyenneté — Démocratie de Kerdoré</title>
+  <link rel="icon" type="image/png" href="assets/drapeau_officiel.png"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    /* ── Cotisation page ── */
+    .cotis-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 2.5rem;
+      align-items: start;
+    }
+    @media (max-width: 860px) {
+      .cotis-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Statut card */
+    .statut-card {
+      border: 1px solid var(--border);
+      background: var(--white);
+      padding: 2rem;
+    }
+    .statut-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.9rem 0;
+      border-bottom: 1px solid var(--light-gray);
+      font-size: 0.9rem;
+    }
+    .statut-row:last-child { border-bottom: none; }
+    .statut-label { color: var(--text-light); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; }
+    .statut-val   { font-weight: 700; color: var(--black); }
+
+    .pill {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      padding: 0.22rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .pill::before { content: ''; width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+    .pill-ok      { background: #DFF0D8; color: #18753C; }
+    .pill-ok::before  { background: #18753C; }
+    .pill-warn    { background: #FFF3CD; color: #856404; }
+    .pill-warn::before { background: #e6a800; }
+    .pill-danger  { background: var(--red-light); color: var(--red); }
+    .pill-danger::before { background: var(--red); }
+    .pill-gov     { background: var(--blue-light); color: var(--blue-dark); }
+    .pill-gov::before { background: var(--blue); }
+
+    /* Montant display */
+    .montant-display {
+      background: var(--blue-dark);
+      color: var(--white);
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .montant-display::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 4px; background: var(--cyan);
+    }
+    .montant-label {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 0.5rem;
+    }
+    .montant-value {
+      font-size: 2.8rem; font-weight: 800; line-height: 1;
+      color: var(--white); letter-spacing: -0.02em;
+    }
+    .montant-currency { font-size: 1.4rem; font-weight: 600; opacity: 0.8; margin-left: 2px; }
+    .montant-period  { font-size: 0.78rem; color: rgba(255,255,255,0.55); margin-top: 0.4rem; }
+    .montant-echeance {
+      margin-top: 1rem; padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      font-size: 0.8rem; color: rgba(255,255,255,0.7);
+    }
+    .montant-echeance strong { color: var(--white); }
+
+    /* Paiement box */
+    .paiement-box {
+      border: 1px solid var(--border);
+      background: var(--white);
+      padding: 2rem;
+    }
+    .paiement-box h2 {
+      font-size: 1rem; font-weight: 800; color: var(--black);
+      margin-bottom: 1.5rem; padding-bottom: 1rem;
+      border-bottom: 1px solid var(--light-gray);
+    }
+
+    #paypal-btn-container { margin: 1rem 0; }
+
+    /* Alerts */
+    .cotis-alert {
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.2rem;
+      font-size: 0.88rem;
+      border-left: 4px solid;
+      border-radius: 2px;
+      display: none;
+    }
+    .cotis-alert.show { display: block; }
+    .cotis-alert-success { background: #DFF0D8; border-color: var(--success); color: #155724; }
+    .cotis-alert-warning { background: #FFF3CD; border-color: #e6a800; color: #856404; }
+    .cotis-alert-danger  { background: var(--red-light); border-color: var(--red); color: #721c24; }
+    .cotis-alert-info    { background: var(--blue-light); border-color: var(--blue); color: var(--blue-dark); }
+
+    /* Suspendu banner */
+    .suspendu-banner {
+      background: var(--red);
+      color: var(--white);
+      padding: 1.2rem 2rem;
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0;
+      display: none;
+    }
+    .suspendu-banner.show { display: block; }
+
+    /* Historique */
+    .historique-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .historique-table th {
+      text-align: left;
+      font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text-light); font-weight: 700;
+      padding: 0.5rem 0.75rem;
+      background: var(--off-white);
+      border-bottom: 1px solid var(--border);
+    }
+    .historique-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--light-gray);
+      color: var(--text);
+    }
+    .historique-table tr:last-child td { border-bottom: none; }
+    .hist-montant { font-weight: 700; color: var(--success); }
+
+    /* Gouvernement message */
+    .gov-message {
+      background: var(--blue-light);
+      border: 1px solid #c5d5f0;
+      border-left: 4px solid var(--blue);
+      padding: 1.5rem;
+      border-radius: 2px;
+    }
+    .gov-message h3 { color: var(--blue-dark); font-size: 1rem; margin-bottom: 0.4rem; }
+    .gov-message p  { color: var(--blue-dark); font-size: 0.88rem; opacity: 0.9; }
+
+    /* Login prompt */
+    .login-prompt {
+      text-align: center;
+      padding: 3rem 2rem;
+      background: var(--off-white);
+      border: 1px dashed var(--border);
+    }
+    .login-prompt .login-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .login-prompt h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .login-prompt p  { color: var(--text-light); font-size: 0.88rem; margin-bottom: 1.5rem; }
+
+    /* Auth modal */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: var(--white);
+      width: 100%; max-width: 440px;
+      margin: 1rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .modal-header {
+      background: var(--blue-dark);
+      color: var(--white);
+      padding: 1.25rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-header h3 { font-size: 1rem; font-weight: 700; }
+    .modal-close {
+      background: none; border: none; color: rgba(255,255,255,0.7);
+      font-size: 1.2rem; cursor: pointer; padding: 0 0.25rem;
+      transition: color .15s;
+    }
+    .modal-close:hover { color: var(--white); }
+    .modal-body { padding: 1.5rem; }
+    .form-group { margin-bottom: 1rem; }
+    .form-label { display: block; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-light); margin-bottom: 0.35rem; }
+    .form-input { width: 100%; padding: 0.65rem 0.9rem; border: 1px solid var(--border); font-family: var(--font-main); font-size: 0.9rem; color: var(--text); background: var(--white); transition: border-color .15s; border-radius: 2px; }
+    .form-input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,49,137,0.1); }
+    .modal-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+    .modal-tab {
+      padding: 0.65rem 1.2rem;
+      font-size: 0.82rem; font-weight: 700; cursor: pointer;
+      color: var(--text-light);
+      border-bottom: 2px solid transparent;
+      background: none; border-top: none; border-left: none; border-right: none;
+      font-family: var(--font-main);
+      transition: color .15s;
+    }
+    .modal-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .spinner-inline {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: var(--white);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<!-- BANNER SUSPENDU -->
+<div class="suspendu-banner" id="suspendu-banner">
+  ⚠️ Votre compte est suspendu pour non-paiement de la taxe citoyenne. Régularisez ci-dessous pour retrouver l'accès complet.
+</div>
+
+<!-- PAGE LOADER -->
+<div class="page-loader" id="page-loader">
+  <div class="loader-flag"><img src="assets/drapeau.png" alt="Kerdoré"/></div>
+  <div class="loader-dots"><span></span><span></span><span></span></div>
+  <p class="loader-label">Chargement en cours</p>
+</div>
+
+<nav class="navbar" id="main-nav"></nav>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <p class="page-label">Espace Citoyen</p>
+    <h1 class="page-title">Taxe de Citoyenneté</h1>
+    <p class="page-desc">Votre contribution mensuelle au fonctionnement de la Démocratie de Kerdoré.</p>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="section" style="padding-top: 3rem;">
+  <!-- État: non connecté -->
+  <div id="view-not-logged" style="display:none;">
+    <div class="login-prompt">
+      <div class="login-icon">🔐</div>
+      <h3>Connexion requise</h3>
+      <p>Identifiez-vous avec votre compte citoyen pour accéder à votre espace de paiement.</p>
+      <button class="btn btn-blue" onclick="document.getElementById('auth-modal').classList.add('show')">
+        Se connecter / Créer un compte
+      </button>
+    </div>
+  </div>
+
+  <!-- État: gouvernement -->
+  <div id="view-gov" style="display:none;">
+    <div class="gov-message">
+      <h3>🏛️ Membre du Gouvernement</h3>
+      <p>En tant que membre du gouvernement de Kerdoré, vous êtes exonéré de la taxe de citoyenneté mensuelle. Votre accès est permanent.</p>
+    </div>
+  </div>
+
+  <!-- État: citoyen connecté -->
+  <div id="view-citoyen" style="display:none;">
+    <div class="cotis-grid">
+
+      <!-- COLONNE GAUCHE — Statut + Historique -->
+      <div>
+        <!-- Statut actuel -->
+        <div class="section-header" style="margin-bottom:1.5rem;">
+          <div class="section-bar"></div>
+          <div>
+            <div class="section-title">Votre situation</div>
+            <div class="section-sub" id="user-email-display"></div>
+          </div>
+        </div>
+
+        <div class="statut-card" style="margin-bottom:2rem;">
+          <div class="statut-row">
+            <span class="statut-label">Statut</span>
+            <span class="statut-val" id="statut-pill">—</span>
+          </div>
+          <div class="statut-row">
+            <span class="statut-label">Dernier paiement</span>
+            <span class="statut-val" id="statut-dernier-paiement">—</span>
+          </div>
+          <div class="statut-row">
+            <span class="statut-label">Mois couvert</span>
+            <span class="statut-val" id="statut-mois">—</span>
+          </div>
+          <div class="statut-row">
+            <span class="statut-label">Prochaine échéance</span>
+            <span class="statut-val" id="statut-echeance">—</span>
+          </div>
+        </div>
+
+        <!-- Historique des paiements -->
+        <div class="section-header" style="margin-bottom:1.5rem;">
+          <div class="section-bar"></div>
+          <div>
+            <div class="section-title">Historique</div>
+            <div class="section-sub">Vos paiements passés</div>
+          </div>
+        </div>
+
+        <div id="historique-container">
+          <table class="historique-table">
+            <thead>
+              <tr>
+                <th>Mois</th>
+                <th>Date</th>
+                <th>Montant</th>
+                <th>Référence</th>
+              </tr>
+            </thead>
+            <tbody id="historique-body">
+              <tr><td colspan="4" style="color:var(--text-light);font-size:0.84rem;padding:1.5rem 0.75rem;">Aucun paiement enregistré.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- COLONNE DROITE — Paiement -->
+      <div>
+        <div class="montant-display">
+          <div class="montant-label">Taxe du mois en cours</div>
+          <div class="montant-value" id="montant-value">—<span class="montant-currency">€</span></div>
+          <div class="montant-period" id="montant-period">Chargement...</div>
+          <div class="montant-echeance">
+            Échéance : <strong>1er du mois</strong> — délai de grâce de 7 jours
+          </div>
+        </div>
+
+        <div class="paiement-box">
+          <h2>Régler la taxe</h2>
+
+          <div class="cotis-alert cotis-alert-success" id="alert-success">
+            ✅ Paiement confirmé ! Votre taxe est à jour.
+          </div>
+          <div class="cotis-alert cotis-alert-warning" id="alert-deja-paye">
+            ✓ Vous avez déjà réglé la taxe pour ce mois.
+          </div>
+          <div class="cotis-alert cotis-alert-danger" id="alert-error">
+            Une erreur est survenue. Veuillez réessayer.
+          </div>
+          <div class="cotis-alert cotis-alert-info" id="alert-loading">
+            <span class="spinner-inline"></span> Traitement en cours...
+          </div>
+
+          <div id="paypal-btn-container"></div>
+
+          <p style="font-size:0.75rem;color:var(--text-light);margin-top:1rem;line-height:1.5;">
+            Le paiement est sécurisé par PayPal. Le montant indiqué ci-dessus est défini par l'administration de Kerdoré et peut varier chaque mois.
+          </p>
+        </div>
+
+        <div style="margin-top:1.5rem;">
+          <button class="btn btn-ghost" onclick="auth.signOut()" style="width:100%;justify-content:center;">
+            Se déconnecter
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AUTH -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Espace Citoyen — Connexion</h3>
+      <button class="modal-close" onclick="document.getElementById('auth-modal').classList.remove('show')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tabs">
+        <button class="modal-tab active" onclick="switchTab('login')">Se connecter</button>
+        <button class="modal-tab" onclick="switchTab('register')">Créer un compte</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div class="tab-content active" id="tab-login">
+        <div id="login-error" class="cotis-alert cotis-alert-danger"></div>
+        <div class="form-group">
+          <label class="form-label" for="login-email">Adresse e-mail</label>
+          <input class="form-input" type="email" id="login-email" placeholder="citoyen@exemple.com"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-password">Mot de passe</label>
+          <input class="form-input" type="password" id="login-password" placeholder="••••••••"/>
+        </div>
+        <button class="btn btn-blue" id="btn-login" onclick="doLogin()" style="width:100%;justify-content:center;margin-top:0.5rem;">
+          Se connecter
+        </button>
+      </div>
+
+      <!-- REGISTER -->
+      <div class="tab-content" id="tab-register">
+        <div id="register-error" class="cotis-alert cotis-alert-danger"></div>
+        <div class="form-group">
+          <label class="form-label" for="reg-nom">Nom complet</label>
+          <input class="form-input" type="text" id="reg-nom" placeholder="Jean Dupont"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-email">Adresse e-mail</label>
+          <input class="form-input" type="email" id="reg-email" placeholder="citoyen@exemple.com"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-password">Mot de passe</label>
+          <input class="form-input" type="password" id="reg-password" placeholder="8 caractères minimum"/>
+        </div>
+        <button class="btn btn-blue" id="btn-register" onclick="doRegister()" style="width:100%;justify-content:center;margin-top:0.5rem;">
+          Créer mon compte
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.paypal.com/sdk/js?client-id=VOTRE_CLIENT_ID_PAYPAL&currency=EUR&locale=fr_FR"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/nav.js"></script>
+<script>
+injectNav('cotisation');
+
+const BACKEND = 'https://kerdore-backend.onrender.com'; // ← Ton URL Render
+
+// ── Tab switch ───────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.modal-tab').forEach((t, i) => {
+    t.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
+  });
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+}
+
+// ── Auth ─────────────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.classList.remove('show');
+  document.getElementById('btn-login').disabled = true;
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+    document.getElementById('auth-modal').classList.remove('show');
+  } catch (e) {
+    errEl.textContent = 'Identifiants incorrects.';
+    errEl.classList.add('show');
+  } finally {
+    document.getElementById('btn-login').disabled = false;
+  }
+}
+
+async function doRegister() {
+  const nom   = document.getElementById('reg-nom').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass  = document.getElementById('reg-password').value;
+  const errEl = document.getElementById('register-error');
+  errEl.classList.remove('show');
+  if (!nom || !email || !pass) {
+    errEl.textContent = 'Remplissez tous les champs.'; errEl.classList.add('show'); return;
+  }
+  if (pass.length < 8) {
+    errEl.textContent = 'Le mot de passe doit faire 8 caractères minimum.'; errEl.classList.add('show'); return;
+  }
+  document.getElementById('btn-register').disabled = true;
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+    // Crée le profil dans Firebase
+    await db.ref(`users/${cred.user.uid}`).set({
+      nom, email, role: 'citoyen',
+      cotisation_payee: false,
+      suspendu: false,
+      cree_le: new Date().toISOString()
+    });
+    document.getElementById('auth-modal').classList.remove('show');
+  } catch (e) {
+    let msg = 'Erreur lors de la création du compte.';
+    if (e.code === 'auth/email-already-in-use') msg = 'Cet e-mail est déjà utilisé.';
+    errEl.textContent = msg; errEl.classList.add('show');
+  } finally {
+    document.getElementById('btn-register').disabled = false;
+  }
+}
+
+// ── Formatage ────────────────────────────────────────────────
+function formatMois(ym) {
+  if (!ym) return '—';
+  const [y, m] = ym.split('-');
+  return new Date(y, m - 1).toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+}
+function formatDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+function moisCourant() {
+  const n = new Date();
+  return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;
+}
+
+// ── PayPal buttons ───────────────────────────────────────────
+let paypalRendered = false;
+function renderPayPal(uid) {
+  if (paypalRendered) return;
+  paypalRendered = true;
+
+  paypal.Buttons({
+    style: { layout: 'vertical', color: 'blue', shape: 'rect', label: 'pay' },
+
+    createOrder: async () => {
+      showAlert('alert-loading');
+      const res  = await fetch(`${BACKEND}/api/paypal/create-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid })
+      });
+      const data = await res.json();
+      if (data.error) { showAlert('alert-error', data.error); throw new Error(data.error); }
+      hideAllAlerts();
+      return data.orderID;
+    },
+
+    onApprove: async (data) => {
+      showAlert('alert-loading');
+      const res = await fetch(`${BACKEND}/api/paypal/capture`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderID: data.orderID, uid })
+      });
+      const result = await res.json();
+      if (result.success) {
+        showAlert('alert-success');
+        setTimeout(() => loadUserStatus(uid), 1000);
+      } else {
+        showAlert('alert-error', result.error);
+      }
+    },
+
+    onError: (err) => {
+      console.error(err);
+      showAlert('alert-error', 'Erreur PayPal. Veuillez réessayer.');
+    },
+
+    onCancel: () => { hideAllAlerts(); }
+  }).render('#paypal-btn-container');
+}
+
+function showAlert(id, msg) {
+  hideAllAlerts();
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (msg) el.textContent = (id === 'alert-error' ? '⚠️ ' : '') + msg;
+  el.classList.add('show');
+}
+function hideAllAlerts() {
+  ['alert-success','alert-deja-paye','alert-error','alert-loading'].forEach(id => {
+    document.getElementById(id)?.classList.remove('show');
+  });
+}
+
+// ── Charger le statut du citoyen ─────────────────────────────
+async function loadUserStatus(uid) {
+  try {
+    const res  = await fetch(`${BACKEND}/api/user/${uid}/status`);
+    const data = await res.json();
+
+    // Montant de la taxe
+    const mc = moisCourant();
+    document.getElementById('montant-value').innerHTML = `${parseFloat(data.montant_taxe).toFixed(2)}<span class="montant-currency"> €</span>`;
+    document.getElementById('montant-period').textContent = formatMois(mc);
+
+    // Prochaine échéance
+    const echeance = data.prochaine_echeance ? formatDate(data.prochaine_echeance) : '1er du mois prochain';
+    document.getElementById('statut-echeance').textContent = echeance;
+
+    // Mois couvert
+    document.getElementById('statut-mois').textContent = data.cotisation_mois ? formatMois(data.cotisation_mois) : '—';
+
+    // Dernier paiement (depuis Firebase directement)
+    const histSnap = await db.ref(`users/${uid}/historique_paiements`).limitToLast(1).once('value');
+    let dernierDate = '—';
+    histSnap.forEach(c => { dernierDate = formatDate(c.val().date); });
+    document.getElementById('statut-dernier-paiement').textContent = dernierDate;
+
+    // Pill statut
+    const pillEl = document.getElementById('statut-pill');
+    const aPayeCeMois = data.cotisation_mois === mc;
+
+    if (data.suspendu) {
+      pillEl.innerHTML = '<span class="pill pill-danger">Suspendu</span>';
+      document.getElementById('suspendu-banner').classList.add('show');
+    } else if (aPayeCeMois) {
+      pillEl.innerHTML = '<span class="pill pill-ok">À jour</span>';
+      showAlert('alert-deja-paye');
+      document.getElementById('suspendu-banner').classList.remove('show');
+    } else {
+      // Vérifie si dans le délai de grâce (1er→7 du mois)
+      const today = new Date().getDate();
+      if (today <= 7) {
+        pillEl.innerHTML = '<span class="pill pill-warn">En attente</span>';
+      } else {
+        pillEl.innerHTML = '<span class="pill pill-danger">En retard</span>';
+      }
+      document.getElementById('suspendu-banner').classList.remove('show');
+    }
+
+    // Historique
+    const histAllSnap = await db.ref(`users/${uid}/historique_paiements`).orderByChild('date').once('value');
+    const rows = [];
+    histAllSnap.forEach(c => rows.unshift(c.val()));
+
+    const tbody = document.getElementById('historique-body');
+    if (rows.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" style="color:var(--text-light);font-size:0.84rem;padding:1.5rem 0.75rem;">Aucun paiement enregistré.</td></tr>';
+    } else {
+      tbody.innerHTML = rows.map(r => `
+        <tr>
+          <td>${formatMois(r.mois)}</td>
+          <td>${formatDate(r.date)}</td>
+          <td class="hist-montant">${parseFloat(r.montant).toFixed(2)} €</td>
+          <td style="font-size:0.74rem;color:var(--text-light);font-family:monospace;">${(r.order || '').substring(0,16)}…</td>
+        </tr>
+      `).join('');
+    }
+
+    // Afficher PayPal seulement si pas à jour et pas gouvernement
+    if (!aPayeCeMois && data.role !== 'gouvernement') {
+      renderPayPal(uid);
+    } else {
+      document.getElementById('paypal-btn-container').innerHTML = '';
+    }
+
+  } catch (err) {
+    console.error('[loadUserStatus]', err);
+  }
+}
+
+// ── Auth state ───────────────────────────────────────────────
+auth.onAuthStateChanged(async user => {
+  document.getElementById('view-not-logged').style.display = 'none';
+  document.getElementById('view-gov').style.display        = 'none';
+  document.getElementById('view-citoyen').style.display    = 'none';
+
+  if (!user) {
+    document.getElementById('view-not-logged').style.display = 'block';
+    hideLoader();
+    return;
+  }
+
+  // Récupère le rôle depuis Firebase
+  const snap = await db.ref(`users/${user.uid}/role`).once('value');
+  const role = snap.val();
+
+  if (role === 'gouvernement' || role === 'admin') {
+    document.getElementById('view-gov').style.display = 'block';
+    hideLoader();
+    return;
+  }
+
+  // Citoyen
+  document.getElementById('view-citoyen').style.display = 'block';
+  document.getElementById('user-email-display').textContent = user.email;
+  await loadUserStatus(user.uid);
+  hideLoader();
+});
+
+function hideLoader() {
+  const l = document.getElementById('page-loader');
+  if (l) l.classList.add('hidden');
+}
+
+// Keyboard submit
+document.getElementById('login-password').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+document.getElementById('reg-password').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doRegister();
+});
+</script>
+</body>
+</html>
