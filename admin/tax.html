@@ -1,0 +1,681 @@
+<!-- ================================================================
+  KERDORÉ — PATCH DASHBOARD ADMIN
+  Instructions :
+  1. Ajouter le lien sidebar (bloc A) dans <aside class="admin-sidebar">
+     après la ligne  👥 Citoyenneté
+  2. Remplacer le <div id="s-citizens"> (bloc B) par la version ci-dessous
+  3. Ajouter la section taxe (bloc C) avant la section votes
+  4. Ajouter le <style> (bloc D) dans le <head>
+  5. Ajouter le <script> (bloc E) avant la balise </body>
+  6. Dans showSection(), ajouter les cases "taxe" et "citoyens-taxes"
+================================================================ -->
+
+
+<!-- ============================================================
+  BLOC A — Lien sidebar à ajouter
+  (après la ligne 🪪 Citoyens dans l'aside)
+============================================================ -->
+<!--
+  <a class="sidebar-item" data-section="taxe" onclick="showSection('taxe')">
+    💶 Taxe Citoyenne
+    <span id="badge-taxe" style="display:none;background:var(--red);color:#fff;font-size:0.65rem;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:4px;"></span>
+  </a>
+-->
+
+
+<!-- ============================================================
+  BLOC B — Remplace l'ancien <div id="s-citizens">
+============================================================ -->
+<div class="a-section" id="s-citizens">
+  <h2 class="a-title">Registre des Citoyens</h2>
+  <p class="a-desc">Liste officielle des citoyens de la Démocratie de Kerdoré. Gérez les rôles et consultez les statuts de paiement.</p>
+
+  <!-- Barre de recherche + filtres -->
+  <div style="display:flex;gap:0.75rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">
+    <input class="form-input" type="search" id="citizen-search"
+      placeholder="🔍  Rechercher par nom, e-mail ou identifiant…"
+      style="flex:1;min-width:220px;max-width:400px;"
+      oninput="filterCitizens()"/>
+    <select class="form-input" id="citizen-filter-role" style="width:160px;" onchange="filterCitizens()">
+      <option value="">Tous les rôles</option>
+      <option value="citoyen">Citoyens</option>
+      <option value="gouvernement">Gouvernement</option>
+      <option value="admin">Admins</option>
+    </select>
+    <select class="form-input" id="citizen-filter-cotis" style="width:180px;" onchange="filterCitizens()">
+      <option value="">Tous les statuts</option>
+      <option value="ok">Taxe à jour</option>
+      <option value="retard">Taxe en retard</option>
+      <option value="suspendu">Suspendu</option>
+    </select>
+  </div>
+  <div id="citizens-count" style="font-size:0.82rem;color:var(--text-light);margin-bottom:1rem;"></div>
+  <div id="citizens-list"><p style="color:var(--text-light);">Chargement…</p></div>
+</div>
+
+
+<!-- ============================================================
+  BLOC C — Nouvelle section Taxe Citoyenne
+  (à insérer avant <div class="a-section" id="s-votes">)
+============================================================ -->
+<div class="a-section" id="s-taxe">
+  <h2 class="a-title">Taxe Citoyenne</h2>
+  <p class="a-desc">Définissez le montant mensuel, consultez les notifications et le suivi des paiements.</p>
+
+  <!-- Statut global -->
+  <div class="taxe-stats-grid">
+    <div class="taxe-stat-card taxe-stat-blue">
+      <div class="taxe-stat-label">Montant en vigueur</div>
+      <div class="taxe-stat-val" id="taxe-montant-display">—</div>
+      <div class="taxe-stat-sub">€ / mois</div>
+    </div>
+    <div class="taxe-stat-card taxe-stat-green">
+      <div class="taxe-stat-label">Citoyens à jour</div>
+      <div class="taxe-stat-val" id="taxe-count-ok">—</div>
+      <div class="taxe-stat-sub">ce mois-ci</div>
+    </div>
+    <div class="taxe-stat-card taxe-stat-orange">
+      <div class="taxe-stat-label">En attente</div>
+      <div class="taxe-stat-val" id="taxe-count-attente">—</div>
+      <div class="taxe-stat-sub">délai de grâce</div>
+    </div>
+    <div class="taxe-stat-card taxe-stat-red">
+      <div class="taxe-stat-label">Suspendus</div>
+      <div class="taxe-stat-val" id="taxe-count-suspendus">—</div>
+      <div class="taxe-stat-sub">non-paiement</div>
+    </div>
+  </div>
+
+  <!-- Modifier le montant -->
+  <div class="taxe-panel" style="margin-top:2rem;">
+    <h3 class="taxe-panel-title">💶 Modifier le montant mensuel</h3>
+    <div style="display:flex;gap:0.75rem;align-items:flex-end;flex-wrap:wrap;">
+      <div class="form-group" style="margin:0;flex:1;min-width:180px;max-width:260px;">
+        <label class="form-label">Nouveau montant (€)</label>
+        <input class="form-input" type="number" id="new-taxe-montant"
+          min="0.01" step="0.01" placeholder="ex: 15.00"/>
+      </div>
+      <button class="btn btn-blue" onclick="saveTaxeMontant()">Enregistrer</button>
+    </div>
+    <div class="taxe-alert" id="taxe-save-alert"></div>
+    <p style="font-size:0.78rem;color:var(--text-light);margin-top:0.75rem;">
+      ⚠️ Le nouveau montant s'appliquera immédiatement aux prochains paiements. Les citoyens verront le nouveau tarif avant de payer.
+    </p>
+  </div>
+
+  <!-- Notifications non lues -->
+  <div class="taxe-panel" style="margin-top:1.5rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <h3 class="taxe-panel-title" style="margin:0;">🔔 Notifications</h3>
+      <button class="btn-del" onclick="markAllNotifsRead()" id="btn-mark-read" style="display:none;">
+        ✓ Tout marquer comme lu
+      </button>
+    </div>
+    <div id="notifs-list">
+      <p style="color:var(--text-light);font-size:0.88rem;">Chargement…</p>
+    </div>
+  </div>
+
+  <!-- Tableau de bord des paiements du mois -->
+  <div class="taxe-panel" style="margin-top:1.5rem;">
+    <h3 class="taxe-panel-title">📋 Paiements du mois en cours</h3>
+    <div id="taxe-paiements-table">
+      <p style="color:var(--text-light);font-size:0.88rem;">Chargement…</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+  BLOC D — CSS à ajouter dans le <head> (dans une balise <style>)
+============================================================ -->
+<style id="taxe-styles">
+/* ── Taxe section ── */
+.taxe-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 900px) {
+  .taxe-stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 500px) {
+  .taxe-stats-grid { grid-template-columns: 1fr; }
+}
+.taxe-stat-card {
+  padding: 1.5rem;
+  border-left: 4px solid;
+  background: var(--white);
+  border: 1px solid var(--border);
+}
+.taxe-stat-blue   { border-left-color: var(--blue); }
+.taxe-stat-green  { border-left-color: var(--success); }
+.taxe-stat-orange { border-left-color: #e6a800; }
+.taxe-stat-red    { border-left-color: var(--red); }
+.taxe-stat-label {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-light); margin-bottom: 0.4rem;
+}
+.taxe-stat-val {
+  font-size: 2.2rem; font-weight: 800; line-height: 1;
+  color: var(--black); letter-spacing: -0.02em;
+}
+.taxe-stat-sub {
+  font-size: 0.76rem; color: var(--text-light); margin-top: 0.25rem;
+}
+.taxe-panel {
+  background: var(--white);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+}
+.taxe-panel-title {
+  font-size: 0.88rem; font-weight: 700; color: var(--black);
+  margin-bottom: 1.2rem;
+}
+.taxe-alert {
+  margin-top: 0.75rem; font-size: 0.84rem;
+  padding: 0.6rem 0.9rem;
+  border-left: 3px solid;
+  display: none;
+  border-radius: 2px;
+}
+.taxe-alert.ok  { display:block; background:#DFF0D8; border-color:var(--success); color:#155724; }
+.taxe-alert.err { display:block; background:var(--red-light); border-color:var(--red); color:#721c24; }
+
+/* Notifs */
+.notif-item {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--light-gray);
+  font-size: 0.85rem;
+}
+.notif-item:last-child { border-bottom: none; }
+.notif-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0; margin-top: 5px;
+}
+.notif-dot-warning { background: var(--red); }
+.notif-dot-info    { background: var(--blue); }
+.notif-msg  { flex: 1; color: var(--text); line-height: 1.45; }
+.notif-time { font-size: 0.72rem; color: var(--text-light); white-space: nowrap; }
+
+/* Tableau paiements */
+.taxe-table {
+  width: 100%; border-collapse: collapse; font-size: 0.84rem;
+}
+.taxe-table th {
+  text-align: left; font-size: 0.7rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-light); font-weight: 700;
+  padding: 0.5rem 0.75rem;
+  background: var(--off-white);
+  border-bottom: 1px solid var(--border);
+}
+.taxe-table td {
+  padding: 0.75rem; border-bottom: 1px solid var(--light-gray);
+  vertical-align: middle;
+}
+.taxe-table tr:last-child td { border-bottom: none; }
+.taxe-table tr:hover td { background: var(--off-white); }
+
+/* Citizens table */
+.citizens-table {
+  width: 100%; border-collapse: collapse; font-size: 0.84rem;
+}
+.citizens-table th {
+  text-align: left; font-size: 0.7rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-light); font-weight: 700;
+  padding: 0.6rem 0.75rem;
+  background: var(--off-white);
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+.citizens-table td {
+  padding: 0.75rem; border-bottom: 1px solid var(--light-gray);
+  vertical-align: middle;
+}
+.citizens-table tr:last-child td { border-bottom: none; }
+.citizens-table tr:hover td { background: var(--off-white); }
+
+.role-badge {
+  display: inline-block; padding: 0.18rem 0.6rem;
+  font-size: 0.64rem; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; border-radius: 2px;
+}
+.role-citoyen     { background: var(--blue-light); color: var(--blue-dark); }
+.role-gouvernement{ background: #DFF0D8; color: #18753C; }
+.role-admin       { background: #fde8b4; color: #7a4a00; }
+
+.cotis-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 0.18rem 0.6rem;
+  font-size: 0.64rem; font-weight: 700; letter-spacing: 0.04em;
+  text-transform: uppercase; border-radius: 2px;
+}
+.cotis-ok       { background: #DFF0D8; color: #18753C; }
+.cotis-retard   { background: #FFF3CD; color: #856404; }
+.cotis-suspendu { background: var(--red-light); color: var(--red); }
+.cotis-exempt   { background: var(--light-gray); color: var(--text-light); }
+
+/* Role select dropdown */
+.role-select {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.78rem; font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  font-family: var(--font-main);
+  cursor: pointer;
+  background: var(--white);
+  color: var(--text);
+}
+.role-select:focus { outline: none; border-color: var(--blue); }
+
+.suspension-btn {
+  background: none; border: 1px solid var(--border);
+  color: var(--text-light); padding: 0.22rem 0.6rem;
+  font-size: 0.72rem; cursor: pointer;
+  border-radius: 2px; font-family: var(--font-main);
+  transition: all .15s;
+  white-space: nowrap;
+}
+.suspension-btn:hover { border-color: var(--blue); color: var(--blue); }
+.suspension-btn.unsuspend:hover { border-color: var(--success); color: var(--success); }
+</style>
+
+
+<!-- ============================================================
+  BLOC E — Script à ajouter avant </body>
+============================================================ -->
+<script id="taxe-script">
+// =============================================
+//  CONSTANTES
+// =============================================
+const BACKEND_URL = 'https://kerdore-backend.onrender.com';
+
+function moisCourantStr() {
+  const n = new Date();
+  return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;
+}
+function formatMois(ym) {
+  if (!ym) return '—';
+  const [y, m] = ym.split('-');
+  return new Date(y, m - 1).toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+}
+function formatDateCourt(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+function getAdminUid() {
+  return auth.currentUser?.uid || '';
+}
+
+// =============================================
+//  SECTION TAXE
+// =============================================
+async function loadTaxeSection() {
+  await Promise.all([
+    loadTaxeMontant(),
+    loadTaxeStats(),
+    loadNotifications(),
+    loadPaiementsMois()
+  ]);
+}
+
+async function loadTaxeMontant() {
+  const snap = await db.ref('config/taxe_citoyennete').once('value');
+  const m = snap.val() || 10;
+  document.getElementById('taxe-montant-display').textContent = parseFloat(m).toFixed(2);
+  document.getElementById('new-taxe-montant').value = parseFloat(m).toFixed(2);
+}
+
+async function loadTaxeStats() {
+  const snap = await db.ref('users').once('value');
+  const mc = moisCourantStr();
+  let ok = 0, attente = 0, suspendus = 0;
+
+  snap.forEach(child => {
+    const u = child.val();
+    if (['gouvernement', 'admin'].includes(u.role)) return;
+    if (u.suspendu) { suspendus++; return; }
+    if (u.cotisation_mois === mc) { ok++; return; }
+    attente++;
+  });
+
+  document.getElementById('taxe-count-ok').textContent       = ok;
+  document.getElementById('taxe-count-attente').textContent  = attente;
+  document.getElementById('taxe-count-suspendus').textContent = suspendus;
+
+  // Badge sidebar
+  const badgeEl = document.getElementById('badge-taxe');
+  if (badgeEl) {
+    if (suspendus > 0) {
+      badgeEl.textContent = suspendus;
+      badgeEl.style.display = 'inline-block';
+    } else {
+      badgeEl.style.display = 'none';
+    }
+  }
+}
+
+async function saveTaxeMontant() {
+  const val = parseFloat(document.getElementById('new-taxe-montant').value);
+  const alertEl = document.getElementById('taxe-save-alert');
+  alertEl.className = 'taxe-alert';
+
+  if (!val || val <= 0) {
+    alertEl.textContent = 'Montant invalide.';
+    alertEl.classList.add('err');
+    return;
+  }
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/admin/taxe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ montant: val, adminUid: getAdminUid() })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alertEl.textContent = `✅ Taxe mise à jour : ${val.toFixed(2)} € / mois`;
+      alertEl.classList.add('ok');
+      document.getElementById('taxe-montant-display').textContent = val.toFixed(2);
+    } else {
+      alertEl.textContent = '⚠️ ' + (data.error || 'Erreur');
+      alertEl.classList.add('err');
+    }
+  } catch (e) {
+    alertEl.textContent = '⚠️ Impossible de contacter le backend.';
+    alertEl.classList.add('err');
+  }
+}
+
+async function loadNotifications() {
+  const listEl = document.getElementById('notifs-list');
+  const btnMark = document.getElementById('btn-mark-read');
+
+  try {
+    const res  = await fetch(`${BACKEND_URL}/api/admin/notifications`, {
+      headers: { 'x-admin-uid': getAdminUid() }
+    });
+    const data = await res.json();
+
+    if (!Array.isArray(data) || data.length === 0) {
+      listEl.innerHTML = '<p style="color:var(--text-light);font-size:0.84rem;">Aucune notification non lue.</p>';
+      btnMark.style.display = 'none';
+      return;
+    }
+
+    btnMark.style.display = 'inline-flex';
+    listEl.innerHTML = data.map(n => `
+      <div class="notif-item">
+        <div class="notif-dot notif-dot-${n.type === 'warning' ? 'warning' : 'info'}"></div>
+        <div class="notif-msg">${escapeHtml(n.message)}</div>
+        <div class="notif-time">${formatDateCourt(n.ts)}</div>
+      </div>
+    `).join('');
+
+    // Stocke les IDs pour le marquage
+    window._notifIds = data.map(n => n.id);
+
+  } catch (e) {
+    listEl.innerHTML = '<p style="color:var(--text-light);font-size:0.84rem;">Erreur de chargement.</p>';
+  }
+}
+
+async function markAllNotifsRead() {
+  if (!window._notifIds?.length) return;
+  try {
+    await fetch(`${BACKEND_URL}/api/admin/notifications/read`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: window._notifIds })
+    });
+    await loadNotifications();
+  } catch(e) { console.error(e); }
+}
+
+async function loadPaiementsMois() {
+  const el  = document.getElementById('taxe-paiements-table');
+  const mc  = moisCourantStr();
+  const snap = await db.ref('users').once('value');
+
+  const rows = [];
+  snap.forEach(child => {
+    const u = child.val();
+    if (['gouvernement', 'admin'].includes(u.role)) return;
+    rows.push({ uid: child.key, ...u });
+  });
+
+  if (rows.length === 0) {
+    el.innerHTML = '<p style="color:var(--text-light);font-size:0.84rem;">Aucun citoyen.</p>';
+    return;
+  }
+
+  // Tri : suspendus d'abord, puis en retard, puis à jour
+  rows.sort((a, b) => {
+    const rank = u => u.suspendu ? 0 : (u.cotisation_mois !== mc ? 1 : 2);
+    return rank(a) - rank(b);
+  });
+
+  el.innerHTML = `
+    <table class="taxe-table">
+      <thead>
+        <tr>
+          <th>Citoyen</th>
+          <th>E-mail</th>
+          <th>Statut taxe</th>
+          <th>Dernier paiement</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(u => {
+          const aPayeCeMois = u.cotisation_mois === mc;
+          let badge;
+          if (u.suspendu) {
+            badge = '<span class="cotis-badge cotis-suspendu">Suspendu</span>';
+          } else if (aPayeCeMois) {
+            badge = '<span class="cotis-badge cotis-ok">✓ À jour</span>';
+          } else {
+            badge = '<span class="cotis-badge cotis-retard">En retard</span>';
+          }
+
+          return `<tr>
+            <td style="font-weight:700;">${escapeHtml(u.nom || '—')}</td>
+            <td style="color:var(--text-light);font-size:0.8rem;">${escapeHtml(u.email || '—')}</td>
+            <td>${badge}</td>
+            <td style="font-size:0.8rem;">${formatDateCourt(u.cotisation_date)}</td>
+            <td>
+              <button class="suspension-btn ${u.suspendu ? 'unsuspend' : ''}"
+                onclick="toggleSuspension('${u.uid}', ${!u.suspendu})">
+                ${u.suspendu ? '✓ Réactiver' : '🔒 Suspendre'}
+              </button>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+async function toggleSuspension(uid, suspendre) {
+  try {
+    await fetch(`${BACKEND_URL}/api/admin/toggle-suspension`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ targetUid: uid, suspendu: suspendre, adminUid: getAdminUid() })
+    });
+    await loadPaiementsMois();
+    await loadTaxeStats();
+  } catch(e) { alert('Erreur : ' + e.message); }
+}
+
+
+// =============================================
+//  SECTION CITIZENS (version mise à jour)
+// =============================================
+let _allUsers = [];
+
+async function loadCitizens() {
+  const el = document.getElementById('citizens-list');
+  el.innerHTML = '<p style="color:var(--text-light);">Chargement…</p>';
+  try {
+    const snap = await db.ref('users').once('value');
+    _allUsers = [];
+    snap.forEach(c => _allUsers.push({ uid: c.key, ...c.val() }));
+    filterCitizens();
+  } catch(e) {
+    el.innerHTML = '<p style="color:var(--red);">Erreur de chargement.</p>';
+  }
+}
+
+function filterCitizens() {
+  const el      = document.getElementById('citizens-list');
+  const countEl = document.getElementById('citizens-count');
+  const query   = (document.getElementById('citizen-search')?.value || '').toLowerCase().trim();
+  const roleF   = document.getElementById('citizen-filter-role')?.value || '';
+  const cotisF  = document.getElementById('citizen-filter-cotis')?.value || '';
+  const mc      = moisCourantStr();
+
+  const filtered = _allUsers.filter(u => {
+    if (roleF && u.role !== roleF) return false;
+    if (cotisF) {
+      if (cotisF === 'ok'       && u.cotisation_mois !== mc) return false;
+      if (cotisF === 'retard'   && (u.cotisation_mois === mc || u.suspendu || ['gouvernement','admin'].includes(u.role))) return false;
+      if (cotisF === 'suspendu' && !u.suspendu) return false;
+    }
+    if (query) {
+      const haystack = `${u.nom||''} ${u.email||''} ${u.uid}`.toLowerCase();
+      if (!haystack.includes(query)) return false;
+    }
+    return true;
+  });
+
+  const total = _allUsers.length;
+  countEl.textContent = query || roleF || cotisF
+    ? `${filtered.length} résultat${filtered.length > 1 ? 's' : ''} sur ${total}`
+    : `${total} utilisateur${total > 1 ? 's' : ''} enregistré${total > 1 ? 's' : ''}`;
+
+  if (filtered.length === 0) {
+    el.innerHTML = '<p style="color:var(--text-light);">Aucun résultat.</p>';
+    return;
+  }
+
+  el.innerHTML = `
+    <table class="citizens-table">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>E-mail</th>
+          <th>Rôle</th>
+          <th>Taxe</th>
+          <th>Inscription</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filtered.map(u => buildCitizenRow(u, mc)).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function buildCitizenRow(u, mc) {
+  // Rôle badge
+  const roleBadge = `<span class="role-badge role-${u.role || 'citoyen'}">${u.role || 'citoyen'}</span>`;
+
+  // Cotisation badge
+  let cotisBadge;
+  if (['gouvernement', 'admin'].includes(u.role)) {
+    cotisBadge = '<span class="cotis-badge cotis-exempt">Exempté</span>';
+  } else if (u.suspendu) {
+    cotisBadge = '<span class="cotis-badge cotis-suspendu">Suspendu</span>';
+  } else if (u.cotisation_mois === mc) {
+    cotisBadge = '<span class="cotis-badge cotis-ok">✓ À jour</span>';
+  } else {
+    cotisBadge = '<span class="cotis-badge cotis-retard">En retard</span>';
+  }
+
+  const inscrLe = formatDateCourt(u.cree_le);
+
+  return `<tr>
+    <td style="font-weight:700;">${escapeHtml(u.nom || '—')}</td>
+    <td style="font-size:0.8rem;color:var(--text-light);">${escapeHtml(u.email || '—')}</td>
+    <td>${roleBadge}</td>
+    <td>${cotisBadge}</td>
+    <td style="font-size:0.8rem;color:var(--text-light);">${inscrLe}</td>
+    <td style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">
+      <select class="role-select" onchange="setUserRole('${u.uid}', this.value)" title="Changer le rôle">
+        <option value="" disabled selected>Changer rôle…</option>
+        <option value="citoyen"      ${u.role==='citoyen'?'disabled':''}>→ Citoyen</option>
+        <option value="gouvernement" ${u.role==='gouvernement'?'disabled':''}>→ Gouvernement</option>
+        <option value="admin"        ${u.role==='admin'?'disabled':''}>→ Admin</option>
+      </select>
+      ${!['gouvernement','admin'].includes(u.role) ? `
+        <button class="suspension-btn ${u.suspendu ? 'unsuspend' : ''}"
+          onclick="toggleSuspension('${u.uid}', ${!u.suspendu})">
+          ${u.suspendu ? '✓ Réactiver' : '🔒 Suspendre'}
+        </button>
+      ` : ''}
+    </td>
+  </tr>`;
+}
+
+async function setUserRole(uid, role) {
+  if (!role) return;
+  const confirm = window.confirm(`Confirmer le changement de rôle en "${role}" ?`);
+  if (!confirm) return;
+
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/admin/set-role`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ targetUid: uid, role, adminUid: getAdminUid() })
+    });
+    const data = await res.json();
+    if (data.success) {
+      await loadCitizens(); // refresh
+    } else {
+      alert('Erreur : ' + (data.error || 'Inconnue'));
+    }
+  } catch(e) { alert('Erreur réseau : ' + e.message); }
+}
+
+// =============================================
+//  HELPERS
+// =============================================
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// Patch showSection pour charger les nouvelles sections
+const _origShowSection = typeof showSection === 'function' ? showSection : null;
+function showSection(name) {
+  // Gestion des sections standard
+  document.querySelectorAll('.a-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('s-' + name);
+  if (el) el.classList.add('active');
+  document.querySelector(`[data-section="${name}"]`)?.classList.add('active');
+
+  // Lazy load
+  if (name === 'taxe'     && !_sectionLoaded.taxe)     { _sectionLoaded.taxe = true;     loadTaxeSection(); }
+  if (name === 'citizens' && !_sectionLoaded.citizens2) { _sectionLoaded.citizens2 = true; loadCitizens(); }
+
+  // Appel original si les autres sections en ont besoin
+  // (les sections existantes sont déjà gérées par le code original via leur propre logique)
+}
+
+// Enregistre aussi au chargement
+document.addEventListener('DOMContentLoaded', () => {
+  // Pré-charge les stats taxe pour le badge sidebar
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      loadTaxeStats();
+    }
+  });
+});
+</script>
